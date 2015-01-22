@@ -1,0 +1,62 @@
+{% extends "bbs_ninja/base_amiga.html" %}
+
+{% block path %}<a href="/colly/">COLLY</a>:{{ colly.name|upper }}{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/colly.css">
+{% endblock %}
+
+{% block extrascript %}
+  <script>
+  $(document).ready(function() {
+    console.log('lala');
+    var colly = $('#colly');
+    $('#fg').on('change', function() {
+      colly.css('color', $(this).val());
+    });
+    $('#bg').on('change', function() {
+      colly.css('backgroundColor', $(this).val());
+    });
+  });
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="wrapped">
+  <div>
+    <div style="width:360px;float:left">
+      <pre>{{ art.file_id_diz_html|safe }}</pre>
+    </div>
+    <div>
+      <table class="full">
+        <tr><th>Artist</th><td>
+{%- for a in colly.artists %}
+<a href="{{ url_for('artist.profile', name=a.name) }}">{{ a.name|upper }}</a>{% if not loop.last %}, {% endif %}
+{% endfor -%}
+        </td></tr>
+        <tr><th>Title</th><td>{{ colly.title|default('No title') }}</td></tr>
+        <tr><th>Date</th><td>{{ colly.date_created.strftime('%d %b %Y') }}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="clear"></div>
+<form>
+<select id="font"><optgroup label="font">
+{%- for value, fontname in fonts -%}
+  <option value="{{ value }}"{% if value == font %} selected{% endif %}>{{ fontname }}</option>
+{%- endfor -%}
+</optgroup></select>
+<select id="fg"><optgroup label="foreground">
+{%- for i, colorname in colors -%}
+  <option value="{{ i }}"{% if i == fg_hex %} selected{% endif %}>{{ colorname }}</option>
+{%- endfor -%}
+</optgroup></select>
+<select id="bg"><optgroup label="background">
+{%- for i, colorname in colors -%}
+  <option value="{{ i }}"{% if i == bg_hex %} selected{% endif %}>{{ colorname }}</option>
+{%- endfor -%}
+</optgroup></select>
+</form>
+      <pre id="colly">{{ art.art_html|safe }}</pre>
+</div>
+{% endblock %}

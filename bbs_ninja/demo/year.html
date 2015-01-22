@@ -1,0 +1,30 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block title %}B:\NINJA\DEMO\{{ year }}{% endblock %}
+
+{% block path %}<a href="{{ url_for('demo.index') }}">DEMO</a>\{{ year }}{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/demo.css">
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  <script src="/static/js/dojo.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="progress">Loading</div>
+    <div class="wrapped">
+{%- for demo, file_id in demos %}
+      <div class="demo">
+        <div class="preview">
+          <a href="{{ demo|urlencode }}/">
+            <img src="/demo/{{ year }}/{{ demo|urlencode }}.png">
+          </a>
+        </div>
+        <div class="file_id">
+          <pre>{{ file_id }}</pre>
+        </div>
+      </div>
+      <div class="line"></div>
+{%- endfor %}
+  </div>
+{% endblock %}

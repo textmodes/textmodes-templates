@@ -1,0 +1,32 @@
+{% extends "bbs_ninja/base.html" %}
+{% from "bbs_ninja/_macro.html" import dir %}
+
+{% block title %}B:\NINJA\DEMO\{{ year }}\{{ name|upper }}{% endblock %}
+
+{% block path %}<a href="{{ url_for('demo.index') }}">DEMO</a>\<a href="{{ url_for('demo.index_year', year=year) }}">{{ year }}</a>\{{ name|upper }}{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/demo.css">
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  <script src="/static/js/dojo.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="demo" style="max-width: 1320px; margin: 0 auto">
+      <div style="width: 640px; display: inline-block; vertical-align: top; padding-left: 10px">
+        <video style="width: 640px; height: 480px" controls>
+          <source src="/demo/{{ year }}/{{ name|urlencode }}.mp4" type="video/mp4">
+          <source src="/demo/{{ year }}/{{ name|urlencode }}.ogv" type="video/ogg">
+          Your browser doesn't support HTML5 video, but you can
+          <a href="/demo/{{ year }}/{{ name|urlencode }}.mp4">download it here</a>.
+        </video>
+
+        <div class="dos">
+        {{ dir('B', dospath, 'BBS NINJA', files) }}
+        </div>
+      </div>
+      <div style="width: 645px; display: inline-block; margin-left: 10px; color: #bbb; background-color: #000">
+        <pre>{{ info }}</pre>
+      </div>
+    </div>
+{% endblock %}

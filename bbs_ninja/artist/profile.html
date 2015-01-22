@@ -1,0 +1,61 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block title %}B:\NINJA\{{ artist.name|upper }}{% endblock %}
+
+{% block path %}<a href="{{ url_for('artist.index') }}">ARTIST</a>\{{ artist.name|upper }}{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/crew.css">
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="full">
+{% if artist.collies.count() > 0 %}
+  <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
+    <pre style="margin-left:64px"> _______ _______ ___     ___   ___ ___ 
+|   _   |   _   |   |   |   | |   Y   |
+|.  |___|.  |   |.  |   |.  | |   |   |
+|.  |___|.  |   |.  |___|.  |__\_   _/ 
+|:  |   |:  |   |:  |   |:  |   |:  |  
+|::.. . |::.. . |::.. . |::.. . |::.|  
+`-------`-------`-------`-------`---'  </pre>
+  </div>
+  <div style="margin-left:380px">
+{% for c in artist.collies.order_by('name') %}
+    <div class="tile colly">
+      <div class="preview">
+        <a href="{{ url_for('colly.show', name=c.name) }}">
+          <img src="{{ url_for('colly.file_id_diz', name=c.name) }}" class="file_id_diz">
+        </a>
+        <label><span>{{ c.title }}</span></label>
+      </div>
+    </div>
+{% endfor %}
+  </div>
+  <div class="clear"></div>
+{% endif %}
+{% for year in years -%}
+  <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
+    <pre style="margin-left:64px">{{ year['year']|ascii_digits }}</pre>
+  </div>
+  <div style="margin-left:380px">
+  {% for pack in year['packs'][::-1] %}
+    {{ tile(pack, artist) }}
+  {% endfor -%}
+  </div>
+  <div class="clear"></div>
+{% endfor -%}
+</div>
+{% endblock %}
+
+{% macro tile(pack, artist) %}
+    <div class="tile">
+      <div class="preview">
+        <a href="{{ url_for('browse.pack', name=pack.name) }}?artist={{ artist.name|urlencode }}">
+          <img src="{{ url_for('browse.pack_preview', name=pack.name) }}?small=1">
+        </a>
+      </div>
+      <label><span>{{ pack.name|dosname(18) }}</span></label>
+    </div>
+{% endmacro %}
