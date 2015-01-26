@@ -1,0 +1,45 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block path -%}
+<a href="{{ url_for('.index') }}">FONT</a>
+{%- endblock %}
+
+{% block extrapath %}
+{{ name[1] }}
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/font/amiga.css">
+  <style type="text/css">
+  .block {
+    background: #000;
+    color: #fff; }
+  .block th {
+    text-align: left;
+    padding: 8px; }
+  .glyph { font: '{{ name[0] }}'; }
+  .point { color: #aaa }
+  </style>
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <table class="full" style="width:100%">
+{% for (offset, finish, block), glyphs in font %}
+        <tr class="block">
+          <th colspan="8">{{ block }}</th>
+        </tr>
+  {% for row in glyphs %}
+        <tr style="background:#fff">
+    {% for index, available in row %}
+          <td>
+            <div class="glyph" style="text-align:center">&#{{ index }};</div>
+            <div class="point">U+{{ '%04X'|format(index) }}</div>
+          </td>
+    {% endfor %}
+        </tr>
+  {% endfor %}
+{% endfor %}
+      </table>
+    </div>
+{% endblock %}

@@ -6,9 +6,12 @@
 
 {% block extrastyle %}
   <link rel="stylesheet" href="/static/css/dojo.css">
-  <script src="/static/js/masonry.pkgd.min.js"></script>
+{% endblock %}
+
+{% block extrascript %}
   <script src="/static/js/jquery.infinitescroll.js"></script>
-  <script src="/static/js/dojo.js"></script>
+  {{ javascript('masonry.pkgd') }}
+  {{ javascript('dojo', 0) }}
 {% endblock %}
 
 {% block content %}

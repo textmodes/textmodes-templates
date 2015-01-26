@@ -1,0 +1,42 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block path %}<a href="{{ url_for('artist.index') }}">ARTIST</a>{% endblock %}
+
+{% block extrapath %}
+{{ artist.name|title }}
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/crew.css">
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="full">
+{% if artist.collies.count() > 0 %}
+  <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
+    <pre style="margin-left:32px"> _______ _______ ___     ___   ___ ___ 
+|   _   |   _   |   |   |   | |   Y   |
+|.  |___|.  |   |.  |   |.  | |   |   |
+|.  |___|.  |   |.  |___|.  |__\_   _/ 
+|:  |   |:  |   |:  |   |:  |   |:  |  
+|::.. . |::.. . |::.. . |::.. . |::.|  
+`-------`-------`-------`-------`---'  </pre>
+  </div>
+  <div style="margin-left:380px">
+{% for colly in artist.collies.order_by('name') %}
+    <div style="display: inline-block; width: 372px; height: 176px; margin: 16px 0">
+      <div style="width:372px; overflow-x: hidden">
+        <a href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.title|truncate(24, True) }}</a>
+        {% if colly.crew %}
+        with <a href="{{ url_for('crew.info', name=colly.crew.name) }}" class="crew">{{ colly.crew.name|title }}</a>
+        {% endif %}
+      </div>
+      <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
+    </div>
+{% endfor %}
+  </div>
+  <div class="clear"></div>
+{% endif %}
+</div>
+{% endblock %}

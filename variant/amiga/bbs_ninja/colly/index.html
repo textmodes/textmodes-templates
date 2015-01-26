@@ -1,0 +1,50 @@
+{% extends "bbs_ninja/base.html" %}
+{% from "bbs_ninja/_macro.html" import pagerbar %}
+
+{% block path %}COLLY{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/colly.css">
+{% endblock %}
+
+{% block extrascript %}
+  <script src="/static/js/pager.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <div class="bar">
+        <form method="get" action="{{ url_for('.search') }}">
+          {{ pagerbar(pager, '.index') }}
+          {{ pager.total }} collies
+          <span style="float:right">
+            <input type="text" name="q" value="{{ q }}" placeholder="search query">
+            <input type="submit" value="search">
+          </span>
+        </form>
+      </div>
+      <div class="clear">&nbsp;</div>
+      <table class="full">
+        <tr>
+          <th>Title</th>
+          <th class="artists">Artist(s)</th>
+          <th class="crews">Crew</th>
+        </tr>
+{% for colly in pager.items %}
+    <tr>
+      <td><a class="name" href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.title|truncate(40, True) }}</a></td>
+      <td>
+{%- for a in colly.artists %}
+<a href="{{ url_for('artist.profile', name=a.name) }}">{{ a.name|title }}</a>{% if not loop.last %}, {% endif -%}
+{% endfor -%}
+      </td>
+{% if colly.crew %}
+<td><a href="{{ url_for('crew.info', name=colly.crew.name) }}">{{ colly.crew.name|title|truncate(12,True) }}</a></td>
+{% else %}
+      <td>&nbsp;</td>
+{% endif %}
+    </tr>
+{% endfor %}
+  </table>
+</div>
+{% endblock %}

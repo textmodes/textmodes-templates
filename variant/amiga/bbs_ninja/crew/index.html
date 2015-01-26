@@ -1,0 +1,20 @@
+{% extends "bbs_ninja/base.html" %}
+{% from "bbs_ninja/_macro.html" import pagerbar %}
+
+{% block content %}
+    <div class="wrapped">
+      <div class="bar">
+        <form method="get" action="">
+          {{ pagerbar(pager, '.index', style='amiga') }}
+          {{ pager.total }} crews
+          <span style="float:right">
+            <input type="text" name="q" value="{{ q }}" placeholder="search query">
+            <input type="submit" value="search">
+          </span>
+        </form>
+      </div>
+{% for crew in pager.items %}
+      <a href="{{ url_for('.info', name=crew.name) }}">{{ crew.name|title }}</a>
+{% endfor %}
+    </div>
+{% endblock %}

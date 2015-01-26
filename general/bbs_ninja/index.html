@@ -1,0 +1,47 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block content %}
+    <h2 class="cf">{{ totals.colly }} <a href="http://amiga.textmod.es/" class="cd">Amiga</a> collies</h2>
+    <div class="recent">Recently added:</div>
+    <ul class="recent">
+    {% for colly in recent.colly %}
+      <li class="c8">
+        <a href="http://amiga.textmod.es/colly/{{ colly.name|urlencode }}/">{{ colly.title }}</a>
+        by {% for artist in colly.artists %}
+        <a href="http://amiga.textmod.es{{ url_for('artist.profile', name=artist.name) }}" class="artist">{{ artist.name|title }}</a>
+        {%- if not loop.last %}, {% endif %}
+        {% if colly.crew %}
+        of <a href="http://amiga.textmod.es/crew/{{ colly.crew.name|urlencode }}" class="crew">{{ colly.crew.name|title }}</a>
+        {% endif %}
+        on <span class="c7">{{ colly.date_created.strftime('%Y.%m.%d') }}</span>
+        {% endfor %}
+      </li>
+    {% endfor %}
+    </ul>
+
+    <div class="clear">&nbsp;</div>
+
+    <h2 class="cf">
+      {{ totals.packs }} <a href="http://pc.textmod.es/" class="cd">IBM PC</a> packs
+      <span class="c7">with</span> {{ totals.piece }} <span class="c7">pieces</span>
+    </h2>
+    <div class="recent">Recently added:</div>
+    <ul class="recent">
+    {% for pack in recent.packs %}
+      <li class="c8">
+        <a href="http://pc.textmod.es/pack/{{ pack.name|urlencode }}/" class="pack">{{ pack.name|upper }}</a>
+        {% if pack.crews %}
+        by {% for crew in pack.crews %}
+        <a href="http://amiga.textmod.es/crew/{{ crew.name|urlencode }}/" class="crew">{{ crew.name|title }}</a>
+        {%- if not loop.last %}, {% endif %}
+        {% endfor %}
+        on <span class="c7">{{ pack.date_created.strftime('%Y.%m.%d') }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+
+    <div class="clear">&nbsp;</div>
+
+    <h2 class="cf">Expect more!</h2>
+{% endblock %}

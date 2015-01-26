@@ -1,0 +1,16 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block path -%}
+FONT
+{%- endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <p>Available fonts:</p>
+      <ul>
+{% for name, (css_name, title) in fonts %}
+        <li><a href="{{ url_for('.info', name=name) }}">{{ title }}</a></li>
+{% endfor %}
+      </ul>
+    </div>
+{% endblock %}

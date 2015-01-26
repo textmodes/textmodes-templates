@@ -1,0 +1,86 @@
+{% macro dir(drive, dospath, volume, files) %}
+<pre>
+{{ drive|upper }}:\{{ dospath|upper }}&gt; dir
+ Volume in drive {{ drive|upper }} is {{ volume|upper }}
+ Volume Serial Number is 1337-2342
+
+ Directory of {{ drive|upper }}:\{{ dospath|upper }}
+
+10/06/2014  09:05 PM    &lt;DIR&gt;             <a href="">.</a>
+10/06/2014  09:05 PM    &lt;DIR&gt;             <a href="../">..</a>
+{% for size, mtime, item in files -%}
+{% if not size -%}
+{{ mtime }}    &lt;DIR&gt;             <a href="{{ item|urlencode }}/">{{ item|basename|upper }}</a>
+{% else -%}
+{{ mtime }}    {{ size }}      <a href="{{ item|urlencode }}">{{ item|basename|upper }}</a>
+{% endif -%}
+{% endfor -%}
+{{ drive|upper }}:\{{ dospath|upper }}&gt; <span class="blink">&#xdb;</span>
+</pre>
+{% endmacro %}
+
+{% macro pagerbar(pager, route, query='', style='amiga', fmt='%03d') %}
+  {% if pager.has_prev -%}
+  <a id="first" href="{{ url_for(route, page=1) }}{% if query %}?{{ query|safe }}{% endif %}">
+    {{- pagerfirst(style) -}}
+  </a>
+  <a id="prev" href="{{ url_for(route, page=pager.prev_num) }}{% if query %}?{{ query|safe }}{% endif %}">
+    {{- pagerprev(style) -}}
+  </a>
+  {%- else -%}
+    {{- pagerfirst(style) }} {{ pagerprev(style) -}}
+  {%- endif %}
+  [{{ pager.pages|progress(pager.page, style) }}
+  <span style="color:#fff">{{ fmt|format(pager.page) }}</span><span style="color:#555">/</span>{{ fmt|format(pager.pages) }}] 
+  {% if pager.has_next -%}
+  <a id="next" href="{{ url_for(route, page=pager.next_num) }}{% if query %}?{{ query|safe }}{% endif %}">
+    {{- pagernext(style) -}}
+  </a>
+  <a id="last" href="{{ url_for(route, page=pager.pages) }}{% if query %}?{{ query|safe }}{% endif %}">
+    {{- pagerlast(style) -}}
+  </a>
+  {% else -%}
+    {{- pagernext(style) }} {{ pagerlast(style) -}}
+  {%- endif %}
+{% endmacro %}
+
+{% macro pagerfirst(style='amiga') %}
+{%- if style == 'amiga' -%}
+|&#xab;
+{%- elif style == 'pc' -%}
+|&lt;
+{%- else -%}
+|&lt;
+{%- endif -%}
+{% endmacro %}
+
+{% macro pagerprev(style='amiga') %}
+{%- if style == 'amiga' -%}
+&#xab;=
+{%- elif style == 'pc' -%}
+&lt;&lt;
+{%- else -%}
+&lt;=
+{%- endif -%}
+{% endmacro %}
+
+{% macro pagernext(style='amiga') %}
+{%- if style == 'amiga' -%}
+=&#xbb;
+{%- elif style == 'pc' -%}
+&gt;&gt;
+{%- else -%}
+=&gt;
+{%- endif -%}
+{% endmacro %}
+
+{% macro pagerlast(style='amiga') %}
+{%- if style == 'amiga' -%}
+&#xbb;|
+{%- elif style == 'pc' -%}
+&gt;|
+{%- else -%}
+&gt;|
+{%- endif -%}
+{% endmacro %}
+

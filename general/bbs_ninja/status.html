@@ -1,0 +1,87 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block extrastyle %}
+  <style type="text/css">
+  th {
+    width: 160px;
+    text-align: left;
+    color: #555;
+  }
+  </style>
+{% endblock %}
+
+{% block content %}
+    <h2 class="cf">Database status</h2>
+
+    <table>
+      <tr>
+        <th>Artists</th>
+        <td>
+          {{ status.artist }},
+          <a href="http://amiga.textmod.es/artist/">{{ status.artist_colly }}</a> with collies,
+          <a href="http://pc.textmod.es/artist/">{{ status.artist_pack_file }}</a> with pieces
+        </td>
+      </tr>
+      <tr>
+        <th>Crews</th>
+        <td>
+          {{ status.crew }},
+          <a href="http://amiga.textmod.es/crew/">{{ status.crew_colly }}</a> with collies,
+          <a href="http://pc.textmod.es/crew/">{{ status.crew_pack }}</a> with packs
+        </td>
+      </tr>
+      <tr>
+        <th>Collies</th>
+        <td>
+          <a href="http://amiga.textmod.es/colly/">{{ status.colly }}</a>
+        </td>
+      </tr>
+      <tr>
+        <th>Packs</th>
+        <td>
+          <a href="http://pc.textmod.es/pack/">{{ status.pack }}</a>
+        </td>
+      </tr>
+      <tr>
+        <th>Pieces</th>
+        <td>{{ status.pack_file }}</td>
+      </tr>
+      <tr>
+        <th>Total text files</th>
+        <td>{{ status.colly + status.pack_file }}</td>
+      </tr>
+    </table>
+
+    <div class="clear"></div>
+
+    <h2 class="cf">Search cluster status</h2>
+
+    <table>
+      <tr>
+        <th>Status</th>
+        <td class="{{ status.search.status }}">{{ status.search.cluster_name }} cluster {{ status.search.status }}</td>
+      </tr>
+      <tr>
+        <th>Active shards</th>
+        <td>
+          {{ status.search.active_primary_shards }}
+        </td>
+      </tr>
+      <tr>
+        <th>Broken shards</th>
+        <td class="{% if status.search.unassigned_shards == 0 %}green{% else %}red{% endif %}">
+          {{ status.search.unassigned_shards }}
+          {% if status.search.unassigned_shards == 0 %}(good){% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>Relocating</th>
+        <td class="{% if status.search.relocating_shards == 0 %}green{% else %}yellow{% endif %}">
+          {{ status.search.relocating_shards }}
+          {% if status.search.relocating_shards == 0 %}(good){% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <div class="clear"></div>
+{% endblock %}

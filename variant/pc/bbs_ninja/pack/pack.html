@@ -1,13 +1,13 @@
-{% extends "bbs_ninja/base_pc.html" %}
+{% extends "bbs_ninja/base.html" %}
 
 {% block title %}BBS Ninja\{{ pack.name|upper }}{% endblock %}
 
-{% block path %}<a href="{{ url_for('browse.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
+{% block path %}<a href="{{ url_for('pack.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
 
 {% block extrapath %}
-{%- if pack.crews -%}
+{%- if pack.crews %}
 <span class="dark">BY {% for crew in pack.crews -%}
-<a href="{{ url_for('crew.info', name=crew.name) }}">{{ crew.name|upper }}</a>
+<a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|upper }}</a>
     {%- if not loop.last %} &amp; {% endif -%}
   {%- endfor -%}
 {%- endif -%}
@@ -29,14 +29,13 @@
   <ul class="pack" style="left: auto">
 {% if info %}
   <div class="fileid">
-    <!-- img src="http://gfx.bbs.ninja/pack/show/{{ pack.year }}/{{ pack.name }}/{{ info.filename }}.png" -->
-    <img src="../{{ pack.name|urlencode }}.png">
+    <img src="{{ cdn('.thumbnail', name=pack.name) }}">
   </div>
 {% endif %}
 {% for file in pack.files %}
     <li class="piece tile{% if artist %}{% for a in file.artists %}{% if a.name == artist %} highlight{% endif %}{% endfor %}{% endif %}">
       <a href="#{{ file.filename|anchor }}" rel="pack">
-        <img src="../{{ pack.name|urlencode }}/preview/{{ file.filename|urlencode }}.png">
+        <img src="{{ cdn('.packfile_preview', name=pack.name, filename=file.filename) }}">
         <label title="{{ file.filename|upper }}"><span>{{ file.filename|dosname(18) }}</span></label>
       </a>
     </li>
@@ -48,7 +47,7 @@
 {% for file in pack.files %}
   <div id="{{ file.filename|anchor }}" class="card">
     <div class="front">
-      <img src="{{ url_for('browse.packfile_view', name=pack.name, filename=file.filename) }}">
+      <img src="{{ cdn('.packfile_view', name=pack.name, filename=file.filename) }}">
     </div>
     <div class="back">
       <div class="back-wrapped">
@@ -70,7 +69,7 @@
             </tr>
             <tr>
               <th>GROUPS</th>
-              <td>{% if pack.crews.count > 0 %}{% for crew in pack.crews %}<a href="{{ url_for('crew.info', name=crew.name) }}">{{ crew.name|upper }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}Unknown{% endif %}</td>
+              <td>{% if pack.crews.count > 0 %}{% for crew in pack.crews %}<a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|upper }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}Unknown{% endif %}</td>
            </tr>
           </table>
         </p>

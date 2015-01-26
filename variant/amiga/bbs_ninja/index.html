@@ -1,0 +1,53 @@
+{% extends "bbs_ninja/base.html" %}
+
+{% block content %}
+    <div class="wrapped">
+      <pre style="color:#fff;text-shadow:4px 4px #444">
+            _______  _______  _______    <span style="color:#5f5"> ______  __       __      </span> 
+           |   _   \|   _   \|   _   |   <span style="color:#5f5">|   _  \|__|.----|__|---.-.</span>
+           |.  |   /|.  |   /|   |___|   <span style="color:#5f5">|.  |   |  |     |  |  _  |</span>
+           |.  _   \|.  _   \|____   |   <span style="color:#5f5">|.  |   |__|__|__|  |___._|</span>
+           |:  |    |:  |    |:  |   |   <span style="color:#5f5">|:  |   |      `.___|     </span> 
+           |::.. .  |::.. .  |::.. . |   <span style="color:#5f5">|::.|   |                 </span> 
+           `-------'`-------'`-------'   <span style="color:#5f5">`--- ---'         </span>Presents:
+
+</pre>
+      <div style="width:800px;margin: 0 auto">
+{%- for colly in recent.colly %}
+        <div style="display: inline-block; width: 372px; height: 176px;margin:16px 0">
+          <div style="width: 372px;overflow-x:hidden">
+            <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">{{ colly.title|truncate(32, True) }}</a>
+            {%- if colly.crew %}
+            by <a href="{{ url_for('crew.info', slug=colly.crew.slug) }}" class="crew">{{ colly.crew.name|title }}</a>
+            {%- endif %}
+          </div>
+          <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
+          <div class="clear"></div>
+        </div>
+    {% endfor %}
+      </div>
+      <h2>What's this?</h2>
+      <p>
+        The Amiga ASCII scene dates back to the early 1990s, seven years after
+        the release of the <a href="https://en.wikipedia.org/wiki/Amiga_1000">Commodore
+        Amiga 1000</a>. Most of the early contributers find their origins in
+        the C64 demo and warez scene. Early crews are
+        <a href="{{ url_for('crew.info', slug='art') }}">ART</a>,
+        <a href="{{ url_for('crew.info', slug='epsilon.design') }}">Epsilon Design</a> (E^D),
+        <a href="{{ url_for('crew.info', slug='upperclass') }}">Upperclass</a> (UC),
+        <a href="{{ url_for('crew.info', slug='unreal') }}">Unreal</a> (now
+        known as <a href="{{ url_for('crew.info', slug='dezign') }}">DeZign</a>).
+      </p>
+      <p>
+        Most <a href="{{ url_for('crew.index') }}">crews</a> release periodic
+        collections (or <a href="{{ url_for('colly.index') }}">collies</a>),
+        which is a single text file that contains multiple works, as opposed to
+        the <a href="http://pc.textmod.es/">IBM PC</a> art scene where the art
+        works are released as ZIP files with separate text files for each work.
+      </p>
+      <p>
+        <a href="https://github.com/bbsninja/bbsninja-templates/edit/master/variant/amiga/bbs_ninja/index.html">&hellip;
+          do you have anything to add/change?</a>
+      </p>
+    </div>
+{% endblock %}
