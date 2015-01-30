@@ -1,0 +1,11 @@
+{% extends "textmode/news/base.html" %}
+
+{% block content %}
+    <div class="wrapped">
+      {% for page in articles %}
+      <h2><a href="">{{ page.title }}</a> written {{ page.published }}
+        {%- if page.author %} by {{ page.author }}{% endif %}</h2>
+      {{ page|readmore('.article', page=page.path) }}
+      {% endfor %}
+    </div>
+{% endblock %}

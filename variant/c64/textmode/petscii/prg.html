@@ -1,0 +1,22 @@
+{% extends "textmode/base.html" %}
+
+{% block extrastyle %}
+  {{ stylesheet('c64/crt') }}
+{% endblock %}
+
+{% block extrascript %}
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2>{{ program.name }} on <a href="{{ url_for('.release', release_name=release.name) }}">{{ release.name }}</a></h2>
+      <p>
+        Released {{ release.date_created.strftime('%Y.%m.%d') }}
+        {% if release.csdb_id %}via <a href="http://csdb.dk/release/?id={{ release.csdb_id }}">CSDb</a>{% endif %}
+      </p>
+      <div class="crt">
+        <img class="screen" src="{{ url_for('.prg_image', release_name=release.name, filename=program.filename) }}" alt="{{ release.name }}" style="width:704px;height:464px">
+        <div class="overlay" style="width:704px;height:464px">AV-1</div>
+      </div>
+    </div>
+{% endblock %}

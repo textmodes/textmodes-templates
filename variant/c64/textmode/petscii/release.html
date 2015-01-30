@@ -1,0 +1,17 @@
+{% extends "textmode/base.html" %}
+{% from "textmode/petscii/_macro.html" import disk_release %}
+
+{% block extrastyle %}
+    {{ stylesheet('c64/crt', 0) }}
+    <style type="text/css">
+    .disk { width: 100% }
+    .disk td { padding-right: 16px; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2>{{ release.name }}</h2>
+      {{ disk_release(release) }}
+    </div>
+{% endblock %}

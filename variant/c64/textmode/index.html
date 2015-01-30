@@ -1,0 +1,43 @@
+{% extends "textmode/base.html" %}
+{% from "textmode/petscii/_macro.html" import disk_release %}
+
+{% block content %}
+    <div class="wrapped">
+      <pre class="lightred" "text-shadow:4px 4px #444">
+         ______  __       __       
+  BBS . |   _  \|__|.----|__|---.-.
+        |.  |   |  |     |  |  _  |
+        |.  |   |__|__|__|  |___._|
+        |:  |   |      `.___|      
+        |::.|   |                  
+        `--- ---'         Presents:
+</pre>
+      <h2>Recent releases</h2>
+      <div class="full">
+      {% for release in recent.release %}
+        <h2>
+          <a href="{{ url_for('petscii.release', release_name=release.name) }}">{{ release.name }}</a>
+          on {{ release.date_created.strftime('%Y.%m.%d') }}
+        </h2>
+        {{ disk_release(release) }}
+      {% endfor %}
+        <br>
+        <p>
+          <a href="{{ url_for('petscii.index') }}">... browse all PETSCII art</a>
+        </p>
+      </div>
+      <h2>What's this?</h2>
+      <p>
+        PETSCII (<strong>PET S</strong>tandard <strong>C</strong>ode of
+        <strong>I</strong>nformation <strong>I</strong>nterchange), also known
+        as CBM ASCII, is the character set used in Commodore Business Machines
+        (CBM)'s 8-bit home computers, starting with the PET from 1977 and
+        including the VIC-20, C64, CBM-II, Plus/4, C16, C116 and C128. 
+      </p>
+      <p>
+        While the standard ASCII character set limited itself to 127 values,
+        Commodore's PETSCII included 192 values to include their extended
+        graphics characters.
+      </p>
+    </div>
+{% endblock %}

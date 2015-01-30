@@ -1,0 +1,30 @@
+{% extends "textmode/base.html" %}
+{% from "textmode/_macro.html" import pagerbar %}
+{% from "textmode/petscii/_macro.html" import disk_release %}
+
+{% block content %}
+    <div class="wrapped">
+      <form method="get" action="{{ url_for('.search', q=q) }}">
+        <input type="text" name="q" value="{{ q }}">
+        <input type="submit" value="search">
+      </form>
+
+{% if result %}
+  {% if result.total %}
+  <h2>Found {{ result.total }} hit{{ result.total|plural }} for &quot;{{ q }}&quot;</h2>
+    {% if result.pages > 1 %}
+      <div class="pager">
+        {{ pagerbar(result, 'search.search', fmt='%02d') }}
+      </div>
+    {% endif %}
+    {% for release in result.items %}
+      <h2><a href="{{ url_for('petscii.release', release_name=release.name) }}">{{ release.name }}</a></h2>
+      {{ disk_release(release) }}
+    {% endfor %}
+  {% else %}
+      <p>Nothing found for &quot;{{ q }}&quot;</p>
+  {% endif %}
+{% endif %}
+    </div>
+{% endblock %}
+

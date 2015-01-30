@@ -1,0 +1,24 @@
+{% extends "textmode/base.html" %}
+
+{% block extrascript %}
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2>{{ image.filename }} on <a href="{{ url_for('.release', release_name=release.name) }}">{{ release.name }}</a></h2>
+      <table class="disk">
+      {% for prg in image.prg %}
+        <tr>
+          <td>42</td>
+          <td>
+            <pre>&quot;<a href="{{ url_for('.prg', release_name=release.name, filename=prg.filename) }}">{{ prg.name[:16].ljust(16) }}</a>&quot;</pre>
+          </td>
+          <td>prg</td>
+        </tr>
+      {% endfor %}
+        <tr>
+          <td colspan="3">0 blocks free.</td>
+        </tr>
+      </table>
+    </div>
+{% endblock %}

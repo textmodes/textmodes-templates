@@ -1,0 +1,66 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}B:\NINJA\{{ crew.name|upper }}{% endblock %}
+
+{% block path %}<a href="{{ url_for('crew.index') }}">CREW</a>\{{ crew.name|upper }}{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/crew.css">
+  <style type="text/css">
+  .leftside {
+    float: left;
+    width: 372px;
+    margin-right: -372px;
+    text-shadow: 4px 4px #858585;
+  }
+  .rightside {
+    margin-left: 372px;
+  }
+  #banner {
+    height: 288px;
+    text-align: center;
+    background:
+      url({{ url_for('.banner', slug=crew.slug) }}) center top no-repeat,
+      url(/static/image/crew/black.png);
+  }
+  #inner {
+    height: 288px;
+    background: url(/static/image/crew/banner.png);
+  }
+  </style>
+{% endblock %}
+
+{% block extrascript %}
+  {{ javascript('masonry.pkgd') }}
+{% endblock %}
+
+{% block main %}
+  <div id="banner">
+    <div id="inner">
+    </div>
+  </div>
+  <div class="full">
+{% for year in years[::-1] -%}
+    <div style="float:left;width:372px;margin-right:-372px;text-shadow: 8px 8px #858585">
+      <pre style="margin-left:64px">{{ year['year']|ansi_digits }}</pre>
+    </div>
+    <div style="margin-left:372px">
+    {% for pack in year['packs'][::-1] %}
+      {{ tile(pack) }}
+    {% endfor -%}
+    </div>
+    <div class="clear"></div>
+{% endfor -%}
+  </div>
+{% endblock %}
+
+{% macro tile(pack) %}
+    <div class="tile">
+      <div class="preview">
+        <a href="{{ url_for('pack.pack', name=pack.name) }}">
+          <img src="{{ url_for('pack.thumbnail', name=pack.name) }}">
+        </a>
+      </div>
+      <label><span>{{ pack.name|dosname(18) }}</span></label>
+    </div>
+{% endmacro %}

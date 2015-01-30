@@ -1,0 +1,16 @@
+{% extends "textmode/news/base.html" %}
+
+{% block extrastyle %}
+{{ super() }}
+  <style type="text/css">
+  .codehilite { margin: 0 0 16px 16px; }
+  </style>
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2><a href="">{{ page.title }}</a> written {{ page.published }}
+        {%- if page.author %} by {{ page.author }}{% endif %}</h2>
+      {{ page.html|safe }}
+    </div>
+{% endblock %}

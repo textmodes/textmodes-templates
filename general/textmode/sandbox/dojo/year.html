@@ -1,0 +1,33 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}B:\NINJA\{{ year }}\&gt;{% endblock %}
+
+{% block path %}<a href="../" id="year" data-year="{{ years|join(",") }}">{{ year }}</a>{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/dojo.css">
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  <script src="/static/js/jquery.infinitescroll.js"></script>
+  <script src="/static/js/dojo.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="progress">Loading</div>
+<div id="dojo">
+  <ul class="pack" style="left: auto">
+{% for pack in pager.items %}
+    <li class="tile">
+      <div class="preview">
+        <a href="../{{ pack.name|urlencode }}/">
+          <img src="../{{ pack.name|urlencode }}.png?small=1" alt="{{ pack.name|upper }}" title="{{ pack.name|upper }}">
+        </a>
+      </div>
+      <label title="{{ pack.name|upper }}"><span>{{ pack.name|dosname(18) }}</span></label>
+    </li>
+{% endfor %}
+{% if pager.has_next -%}
+    <li id="yearNext"><a href="../{{ year }}/{{ pager.next_num }}/">next</a></li>
+{% endif -%}
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "textmode/base.html" %}
+
+{% block extrascript %}
+  {{ javascript('/pub/static/vendor/github.com.reggino.jsc64/js/jquery.jsc64classes.js') }}
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2>Releases</h2>
+      {% if pager.pages > 1 %}
+      <div class="pager">
+      {% if pager.has_prev %}
+        <a href="{{ url_for('.index') }}">|&lt;
+        <a id="prev" href="{{ url_for('.index', page=pager.prev_num) }}">&lt;&lt;</a>
+      {% else %}
+        |&lt;
+        &lt;&lt;
+      {% endif %}
+      [{{ '%02d'|format(pager.page) }}/{{ pager.pages }}]
+      {% if pager.has_next %}
+        <a id="next" href="{{ url_for('.index', page=pager.next_num) }}">&gt;&gt;</a>
+        <a href="{{ url_for('.index', page=pager.pages) }}">&gt;|</a>
+      {% else %}
+        &gt;&gt;
+        &gt;|
+      {% endif %}
+      </div>
+      {% endif %}
+      <table class="disk">
+        <tr>
+          <th>Name</th>
+          <th>Filename</th>
+          <th>Files</th>
+        {% for release in pager.items %}
+        <tr>
+          {% if release.archive %}{% set archive=release.archive[0] %}
+          <td>
+            <a href="{{ url_for('.release', release_name=release.name) }}">{{ release.name[:16] }}</a>
+          </td>
+          <td>
+            <a href="{{ url_for('.archive', release_name=release.name, filename=archive.filename) }}">
+              {%- if archive.filename|length > 16 -%}
+              {{ archive.filename[:12] }}...{{ archive.type }}
+              {%- else -%}
+              {{ archive.filename }}
+              {%- endif -%}
+            </a>
+          </td>
+          <td>{{ archive.image|length }}+{{ archive.prg|length }}</td>
+          {% elif release.image %}{% set image=release.image[0] %}
+          <td>
+            <a href="{{ url_for('.release', release_name=release.name) }}">{{ release.name[:16] }}</a>
+          </td>
+          <td>
+            <a href="{{ url_for('.image', release_name=release.name, filename=image.filename) }}">
+              {%- if image.filename|length > 16 -%}
+              {{ image.filename[:12] }}...{{ image.type }}
+              {%- else -%}
+              {{ image.filename }}
+              {%- endif -%}
+            </a>
+          </td>
+          <td>{{ image.prg|length }}+{{ image.seq|length }}</td>
+          {% elif release.prg %}{% set prg=release.prg[0] %}
+          <td>
+            <a href="{{ url_for('.release', release_name=release.name) }}">{{ release.name[:16] }}</a>
+          </td>
+          <td>
+            <a href="{{ url_for('.prg', release_name=release.name, filename=prg.filename) }}">
+              {%- if prg.filename|length > 16 -%}
+              {{ prg.filename[:12] }}...{{ prg.type }}
+              {%- else -%}
+              {{ prg.filename }}
+              {%- endif -%}
+            </a>
+          </td>
+          <td>1</td>
+          {% elif release.seq %}{% set seq=release.seq[0] %}
+          <td>
+            <a href="{{ url_for('.release', release_name=release.name) }}">{{ release.name[:16] }}</a>
+          </td>
+          <td>
+            <a href="{{ url_for('.seq', release_name=release.name, filename=seq.filename) }}">
+              {%- if seq.filename|length > 16 -%}
+              {{ seq.filename[:12] }}...{{ seq.type }}
+              {%- else -%}
+              {{ seq.filename }}
+              {%- endif -%}
+            </a>
+          </td>
+          <td>1</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+{% endblock %}

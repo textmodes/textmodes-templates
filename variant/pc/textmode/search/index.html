@@ -1,0 +1,184 @@
+{% extends "textmode/base.html" %}
+{% from "textmode/pack/_macros.html" import pack_thumbnail, pack_file_thumbnail %}
+
+{% block path %}SEARCH{% endblock %}
+
+{% block extrascript %}
+  {{ javascript('jquery.endless-scroll', 0) }}
+  <script>
+  $(document).ready(function() {
+    var note = '<div class="note"><br>v scroll down to load more v</div>'
+    if (!$('.next')) return;
+    $(note).insertAfter('.next');
+    $('.next').hide();
+
+    var loading = false
+      ,loadNext = function() {
+        loading = true;
+        var next = $('.next:last').attr('href');
+        $('.next').remove();
+        $('.note').remove();
+        if (!next) return; // Done Loading
+
+        $.ajax(next, {
+          success: function(content) {
+            $('#hits').append($(content).find('#hits a'));
+            if ($('.next')) {
+              $('.next').hide();
+              $(note).insertAfter('.next');
+            }
+            loading = false;
+          }
+        });
+      };
+
+    $(window).scroll(function() {
+      if (loading) return;
+
+      var wintop = $(window).scrollTop()
+        ,docheight = $(document).height()
+        ,winheight = $(window).height()
+        ,trigger = 0.90;
+
+      if  ((wintop/(docheight-winheight)) > trigger) {
+        loadNext();
+      }  
+    });
+
+    if ($('.next')) {
+      loadNext();
+    }
+  });
+  </script>
+{% endblock %}
+{% block extrastyle %}
+  <style type="text/css">
+  #hits {
+    text-align: center;
+  }
+  .score {
+    background-color: #000;
+    opacity: 0.6;
+    text-align: center;
+    margin-bottom: -16px;
+  }
+  div.thumbnail-artist span {
+    background-color: #55f;
+    color: #fff;
+  }
+  div.thumbnail-artist .score {
+    background-color: #005;
+  }
+  div.thumbnail-crew {
+    background-color: #000;
+    background-size: 160px 72px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  div.thumbnail-crew span {
+    background-color: #f55;
+    color: #fff;
+  }
+  div.thumbnail-crew .score {
+    background-color: #500;
+  }
+  div.thumbnail-pack {
+    background-position: center;
+  }
+  </style>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+      <div class="wrapped">
+        <form method="get" action="{{ url_for('.search') }}">
+          Find
+          <input type="text" name="q" id="q" value="{{ q }}">
+          in
+          <select name="t">
+            {%- for value, name in doc_types %}
+            <option value="{{ value }}"
+                    {%- if value == doc_type %} selected {% endif -%}
+                    >{{ name }}</option>
+            {% endfor -%}
+          </select>
+          <input type="submit" value="Search">
+        </form>
+      </div>
+{% if q %}
+  {%- set years = result.aggs['year'] -%}
+  {%- set crews = result.aggs['crew'] -%}
+
+      <div class="wrapped">
+        <h2>We found {{ result.total }} possible matches
+          {%- if result.total < result.items|length %}, showing {{ result.items|length }}{% endif %}</h2>
+
+    {% if year or crew or (years and years.buckets) or (crews and crews.buckets) %}
+      {% if year or (years and years.buckets) %}
+          {%- if year %}
+          <strong>{{ year }}</strong>
+          (<a href="{{ url_for('.search') }}?q={{ q }}&t={{ doc_type }}&c={{ crew|urlencode }}">clear</a>)
+          {%- else %}
+          {% for bucket in years.buckets %}
+          <a href="{{ url_for('.search') }}?q={{ q }}&t={{ doc_type }}&y={{ bucket.key }}&c={{ crew|urlencode }}">{{ bucket.key }}</a>
+            ({{ bucket.doc_count }})
+          {% endfor %}
+          {% endif %}
+      {% endif %}
+    {% endif %}
+      </div>
+      <hr>
+
+      <div id="hits">
+        {% for item in result.items %}
+          {% if item._type == 'artist' %}
+          <a href="{{ url_for('artist.profile', slug=item.slug) }}" class="hit">
+            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('artist.thumbnail', slug=item.slug) }})">
+              <span>{{ item.name|dosname(18) }}</span>
+            </div>
+          </a>
+          {% elif item._type == 'crew' %}
+          <a href="{{ url_for('crew.info', slug=item.slug) }}" class="hit">
+            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('crew.thumbnail', slug=item.slug) }})">
+              <span>{{ item.name|dosname(18) }}</span>
+            </div>
+          </a>
+          {% elif item._type == 'pack' %}
+          <a href="{{ url_for('pack.pack', name=item.name) }}" class="hit">
+            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('pack.thumbnail', name=item.name) }})">
+              <span>
+                {{ item.name|dosname(18) }}
+                {% if item.crews_count > 0 %}
+                by {% for crew in item.crews %}
+                  {{ crew.name|title }}
+                  {% endfor %}
+                {% endif %}
+              </span>
+            </div>
+          </a>
+          {% elif item._type == 'pack_file' %}
+          {% set pack=item.pack %}
+          <a href="{{ url_for('pack.pack', name=pack.name) }}#{{ item.filename|urlencode }}" class="hit">
+            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('pack.pack_file_preview', name=pack.name, filename=item.filename, variant='tile') }})">
+              <span>
+                {{ item.filename|dosname(18) }}
+                {% if item.artists_count > 0 %}
+                by {% for artist in item.artists %}
+                  {{ artist.name|title }}
+                  {% endfor %}
+                {% endif %}
+              </span>
+            </div>
+          </a>
+          {% else %}
+            {{ item._type }}
+          {% endif %}
+        {% endfor %}
+        {% if result.has_next %}
+        <a class="next" href="{{ url_for('.search', page=result.next_page) }}?q={{ q }}&t={{ t }}&y={{ year }}">next page</a>
+        {% endif %}
+      </div>
+{% endif %}
+    </div>
+
+{% endblock %}

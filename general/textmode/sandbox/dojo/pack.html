@@ -1,0 +1,47 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}BBS Ninja\{{ pack.name|upper }}{% endblock %}
+
+{% block path %}<a href="../" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper|dosname(8) }}{% endblock %}
+
+{% block pathextra %}
+{%- if pack.crews -%}
+BY {{ pack.crews }}
+{%- endif -%}
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/dojo.css">
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  <script src="/static/js/dojo.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="progress">Loading</div>
+<div id="dojo">
+  <ul class="pack" style="left: auto">
+{% if info %}
+  <div class="fileid">
+    <!-- img src="http://gfx.bbs.ninja/pack/show/{{ pack.year }}/{{ pack.name }}/{{ info.filename }}.png" -->
+    <img src="../{{ pack.name|urlencode }}.png">
+  </div>
+{% endif %}
+{% for file in pack.files %}
+    <li class="piece tile">
+      <div class="card">
+        <div class="front">
+          <!-- a href="http://gfx.bbs.ninja/pack/show/{{ pack.year }}/{{ pack.name }}/{{ file.filename }}.png" rel="pack" data-artist="{% for artist in file.artists %}{{ artist.name }}{% if not loop.last %},{% endif %}{% endfor %}" -->
+            <!-- img src="http://gfx.bbs.ninja/pack/view/{{ pack.year }}/{{ pack.name }}/{{ file.filename }}.png" alt="{{ file.filename|upper }}" title="{{ file.filename|upper }}" -->
+          <a href="../{{ pack.name|urlencode }}/view/{{ file.filename|urlencode }}.png" data-artist="{% for artist in file.artists %}{{ artist.name }}{% if not loop.last %},{% endif %}{% endfor %}" rel="pack">
+            <img src="../{{ pack.name|urlencode }}/preview/{{ file.filename|urlencode }}.png">
+            <label title="{{ file.filename|upper }}"><span>{{ file.filename|dosname(18) }}</span></label>
+          </a>
+        </div>
+        <div class="back">
+        </div>
+      </div>
+    </li>
+{% endfor %}
+  </ul>
+</div>
+{% endblock %}

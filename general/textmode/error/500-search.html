@@ -1,0 +1,14 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2>Search temporary unavailable.</h2>
+      <p>
+        The search engine reports to be temporary unavailable, please try again later.
+      </p>
+      <pre>
+status: {{ error_code }}
+error:  {{ error }}
+      </pre>
+    </div>
+{% endblock %}

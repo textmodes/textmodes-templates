@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}PC.TEXTMOD.ES{% endblock %}</title>
+  <meta name="description" content=""/>
+  <meta name="author" content="Wijnand Modderman-Lenstra"/>
+  <meta name="copyright" content=""/>
+  <link rel="icon" type="image/png" href="/static/image/pc/favicon.png">
+  {{ stylesheet('normalize') }}
+  {{ stylesheet('pc/main', cdn=False) }}
+{%- block scenestyle %}{% endblock %}
+{%- block extrastyle %}{% endblock %}
+</head>
+<body>
+  <header class="headroom">
+{%- block header %}
+{%- block search %}
+    <div id="search">
+      <form method="get" action="/search/">
+        <input type="text" name="q" placeholder="search query">
+      </form>
+    </div>
+{%- endblock %}
+B:\<a href="http://textmod.es/">TEXTMOD.ES</a>\<a href="/">PC</a>\{%- block path -%}{%- endblock -%}&gt; {%- block extrapath %}{%- endblock %}
+{%- endblock %}
+  </header>
+{% block main %}
+  <div id="content">
+{%- block content %}{%- endblock %}
+  </div>
+{% endblock %}
+  {{ javascript('jquery') }}
+  {{ javascript('retina') }}
+  {{ javascript('headroom') }}
+  {{ javascript('jquery.headroom') }}
+  {{ javascript('common') }}
+  {{ javascript('jquery.colorbox') }}
+  <script src="/static/js/imagesloaded.pkgd.min.js"></script>
+  <script>$('header').headroom();</script>
+{% block extrascript %}{% endblock %}
+</body>
+</html>

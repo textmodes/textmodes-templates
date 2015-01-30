@@ -1,0 +1,40 @@
+{% extends "textmode/base.html" %}
+
+{% block extrascript %}
+  {# javascript('jquery.jsc64classes', 0) #}
+  {# javascript('jquery.jsc64', 0) #}
+  <script type="text/javascript">
+    var Module = {
+      arguments: [
+        '-autoload', '{{ url_for('.prg', name=petscii.name) }}',
+        '-autostartwithcolon'
+      ],
+      canvas: document.getElementById('canvas'),
+    };
+    /*
+    var jsc64 = $('#c64').jsc64($(document))
+      , jsc64Instance = jsc64.jsc64GetInstance()
+      , progress = 0;
+
+    var wait = function() {
+      progress++;
+      if (progress > 100) {
+        jsc64Instance._renderer.frameTimer.detachEvent('timer', wait);
+        jsc64.loadPrg("{{ url_for('.prg', name=petscii.name) }}");
+      }
+    };
+
+    jsc64Instance._renderer.frameTimer.addEventListener('timer', wait);
+    */
+  </script>
+  {{ javascript('../vendor/github.com.rjanicek.vice.js/js/x64', 0) }}
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <h2>{{ petscii.name }}</h2>
+      <div id="c64" style="width:640px;height:400px">
+         <canvas  id="canvas" style="border: 0px none;"></canvas>
+      </div>
+    </div>
+{% endblock %}

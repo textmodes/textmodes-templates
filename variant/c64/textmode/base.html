@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>C64{% block title %}.TEXTMOD.ES{% endblock %}</title>
+  <meta name="description" content="C64 / PETSCII art preservation archive"/>
+  <meta name="author" content="Wijnand Modderman-Lenstra"/>
+  <meta name="copyright" content=""/>
+  <meta name="keywords" content="c64, petscii, commodore 64, scene, bbs, text, text mode, art"/>
+  <link rel="icon" type="image/png" href="/static/image/c64/favicon.png">
+  {{ stylesheet('normalize') }}
+  {{ stylesheet('c64/main') }}
+  {{ stylesheet('c64/palette') }}
+{%- block scenestyle %}{% endblock %}
+{%- block extrastyle %}{% endblock %}
+</head>
+<body>
+  <header class="headroom">
+    <div id="search">
+      <form method="get" action="{{ url_for('search.search') }}">
+        <input type="text" name="q" placeholder="search">
+      </form>
+    </div>
+{%- block header %}
+<a href="/">C64</a>.<a href="http://textmod.es/">TEXTMOD.ES</a>:{%- block path -%}SITE{%- endblock -%}&gt; {%- block extrapath %}{%- endblock %}
+{%- endblock %}
+  </header>
+{% block main %}
+  <div id="content">
+{%- block content %}{%- endblock %}
+  </div>
+{% endblock %}
+  {{ javascript('headroom') }}
+  {{ javascript('jquery') }}
+  {{ javascript('jquery.headroom') }}
+  {{ javascript('common') }}
+{% block extrascript %}{% endblock %}
+  <script>$('header').headroom();</script>
+</body>
+</html>

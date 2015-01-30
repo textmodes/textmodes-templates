@@ -1,0 +1,69 @@
+{% extends "textmode/base.html" %}
+
+{% block path %}<a href="{{ url_for('.index') }}">COLLY</a>{% endblock %}
+
+{% block extrapath %}
+<span style="color:#5f5">&#34;{{ colly.title }}&#34;</span> by {% for a in colly.artists -%}
+<a href="{{ url_for('artist.profile', slug=a.slug) }}">{{ a.name|upper }}</a>{% if not loop.last %}, {% endif %}
+{%- endfor -%}
+      </span>
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/colly.css">
+{% endblock %}
+
+{% block extrascript %}
+  <script src="/static/js/jquery.cookie.js"></script>
+  <script src="/static/js/jquery.outside-events.js"></script>
+  <script src="/static/js/jquery.easing.1.3.js"></script>
+  <script src="/static/js/colly.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="wrapped">
+      <pre id="colly"{% if font %} style="font-family: '{{ font }}'"{% endif %}>{{ art.art_html|safe }}</pre>
+      </div>
+      <div id="side">
+        <pre>{{ art.file_id_diz_html|safe }}</pre>
+        <table class="full" style="margin-top:16px">
+          <tr><th>Artist</th><td>
+{%- for a in colly.artists %}
+<a href="{{ url_for('artist.profile', slug=a.slug) }}">{{ a.name|upper }}</a>{% if not loop.last %}, {% endif %}
+{% endfor -%}
+          </td></tr>
+          <tr><th>Title</th><td>{{ colly.title|default('No title') }}</td></tr>
+          <tr><th>Date</th><td>{{ colly.date_created.strftime('%d %b %Y') }}</td></tr>
+          <tr><th>Font</th><td>
+            <select id="font">
+              <optgroup label="font">
+{%- for value, fontname in fonts -%}
+                <option value="{{ value }}"{% if value == font %} selected{% endif %}>{{ fontname }}</option>
+{%- endfor -%}
+              </optgroup>
+            </select>
+          </td></tr>
+          <tr><th>Color</th><td>
+            <select id="fg">
+              <optgroup label="foreground">
+{%- for i, colorname in colors -%}
+                <option value="{{ i }}"{% if i == fg_hex %} selected{% endif %}>{{ colorname }}</option>
+{%- endfor -%}
+              </optgroup>
+            </select>
+          </td></tr>
+          <tr><th>Backdrop</th><td>
+            <select id="bg">
+              <optgroup label="background">
+{%- for i, colorname in colors -%}
+                <option value="{{ i }}"{% if i == bg_hex %} selected{% endif %}>{{ colorname }}</option>
+{%- endfor -%}
+              </optgroup>
+            </select>
+          </td></tr>
+          <tr><th>View</th><td><a href="http://www.asciiarena.com/info_release.php?filename={{ colly.filename|encode('base64') }}">on ASCII Arena</a></td></tr>
+        </table>
+      </div>
+      <div id="mask"></div>
+    </div>
+{% endblock %}
