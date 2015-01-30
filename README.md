@@ -1,2 +1,2 @@
-# bbsninja-templates
-http://bbs.ninja/ templates
+# textmodes-templates
+http://textmod.es/ templates
