@@ -4,6 +4,51 @@
 {% block extrastyle %}
   {{ stylesheet('ansi') }}
   {{ stylesheet('crew') }}
+  <style type="text/css">
+  .pack {
+    display: inline-block;
+    width: 288px;
+    height: 280px;
+    margin: 0 2px 16px 0;
+  }
+  .pack .double {
+    width: 192px;
+    height: 280px;
+  }
+  .pack .double .piece {
+    margin-top: 8px;
+    margin-right: 8px;
+  }
+  .pack .single {
+    width: 96px;
+    height: 280px;
+  }
+  .pack .single .piece {
+    margin-bottom: 8px;
+  }
+  .pack .pieces {
+    float: left;
+  }
+  .pack .piece {
+    float: left;
+    background-size: 88px 88px;
+    width: 88px;
+    height: 88px;
+    opacity: 0.6;
+    -o-transition: opacity .25s ease-in-out;
+    -moz-transition: opacity .25s ease-in-out;
+    -webkit-transition: opacity .25s ease-in-out;
+    transition: opacity .25s ease-in-out;
+  }
+  .pack .piece:hover {
+    opacity: 1;
+  }
+  .file_id {
+    background-size: 184px 184px;
+    width: 184px;
+    height: 184px;
+  }
+  </style>
 {% endblock %}
 
 {% block extrapath %}
@@ -12,8 +57,22 @@
 
 {% block content %}
 <div class="full">
-  <div style="margin-left:372px;max-width:640px;padding:0 8px">
-   <img src="/static/image/banner.png">
+  <div style="float:left;width:372px;margin-right:-372px;text-shadow: 4px 4px #858585" id="packs">
+    <pre style="margin-left:16px"> _______ _______ _______ ___ ___ _______
+|   _   |   _   |   _   |   Y   &gt;   _   |
+|.  |   |.  |   |.  |___|.  |  /|   |___|
+|.  ____|.  _   |.  |___|.  _  \|____   |
+|:  |   |:  |   |:  |   |:  |   \:  |   |
+|::.|   |::.|:. |::.. . |::.| . /::.. . |
+`---'   `---'---`-------`---'--'`-------'
+
+Most recently released artpacks
+</pre>
+  </div>
+  <div style="margin-left:372px">
+  {% for r in recent.packs[:9] %}
+    {{ pack_show(r) }}
+  {% endfor -%}
   </div>
   <div class="clear"></div>
   <div style="float:left;width:372px;margin-right:-372px;text-shadow: 4px 4px #858585">
@@ -25,7 +84,7 @@
  |::.|   |::.. . |::.|:. |::.. . |
  `---'---'-------`---'---'-------'</pre>
   </div>
-  <div style="margin-left:372px;max-width:640px;padding:0 8px">
+  <div style="margin-left:372px;max-width:640px">
     <h2>Major overhaul</h2>
     <p>
       As you can see, BBS Ninja has had a major make over. Thanks to
@@ -43,23 +102,6 @@
       registered users to tag artists and crews in pieces, as well as upload
       their packs to the site.
     </p>
-  </div>
-  <div class="clear"></div>
-  <div style="float:left;width:372px;margin-right:-372px;text-shadow: 4px 4px #858585" id="packs">
-    <pre style="margin-left:16px"> _______ _______ _______ ___ ___ _______
-|   _   |   _   |   _   |   Y   &gt;   _   |
-|.  |   |.  |   |.  |___|.  |  /|   |___|
-|.  ____|.  _   |.  |___|.  _  \|____   |
-|:  |   |:  |   |:  |   |:  |   \:  |   |
-|::.|   |::.|:. |::.. . |::.| . /::.. . |
-`---'   `---'---`-------`---'--'`-------'
-
-</pre>
-  </div>
-  <div style="margin-left:372px">
-  {% for r in recent.packs %}
-    {{ pack_thumbnail(r) }}
-  {% endfor -%}
   </div>
   <div class="clear" style="margin:16px"></div>
   <div style="float:left;width:372px;margin-right:-372px;text-shadow: 4px 4px #858585">
@@ -121,13 +163,52 @@
       of fonts and settings.
     </p>
     <p>
-      <a href="https://github.com/bbsninja/bbsninja-templates/edit/master/variant/pc/textmode/index.html">...
+      <a href="https://github.com/textmodes/textmodes-templates/edit/master/variant/pc/textmode/index.html">...
         do you have anything to add/change?</a>
     </p>
   </div>
   <div class="clear"></div>
 </div>
 {% endblock %}
+
+{% macro pack_show(pack) %}
+{% set pieces=pack.populair %}
+    <div class="pack">
+{% if pack.id % 2 == 0 %}
+{{ pack_show_double(pack, pieces[0:2]) }}
+{{ pack_show_single(pack, pieces[2:5]) }}
+{% else %}
+{{ pack_show_single(pack, pieces[0:3]) }}
+{{ pack_show_double(pack, pieces[3:5]) }}
+{% endif %}
+    </div>
+{% endmacro %}
+
+{% macro pack_show_double(pack, pack_files) %}
+      <div class="pieces double">
+        <a href="{{ url_for('pack.pack', name=pack.name) }}">
+          <div class="file_id" style="background-image:url({{ cdn('pack.thumbnail', name=pack.name, variant='tile', scale=2) }})">
+          </div>
+        </a>
+  {% for pack_file in pack_files %}
+        <a href="{{ url_for('pack.pack', name=pack_file.pack.name) }}#{{ pack_file.filename|anchor }}">
+          <div class="piece" style="background-image:url({{ cdn('pack.pack_file_preview', name=pack_file.pack.name, filename=pack_file.filename, variant='tile', scale=2) }})">
+          </div>
+        </a>
+  {% endfor %}
+      </div>
+{% endmacro %}
+
+{% macro pack_show_single(pack, pack_files) %}
+      <div class="pieces single">
+  {% for pack_file in pack_files %}
+        <a href="{{ url_for('pack.pack', name=pack_file.pack.name) }}#{{ pack_file.filename|anchor }}">
+          <div class="piece" style="background-image:url({{ cdn('pack.pack_file_preview', name=pack_file.pack.name, filename=pack_file.filename, variant='tile', scale=2) }})">
+          </div>
+        </a>
+  {% endfor %}
+      </div>
+{% endmacro %}
 
 {% macro pack_tile(pack) %}
     <div class="tile">

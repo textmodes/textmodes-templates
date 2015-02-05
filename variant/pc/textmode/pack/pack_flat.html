@@ -1,0 +1,59 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}T:\EXTMODES\PACK\{{ pack.name|upper }}{% endblock %}
+
+{% block path %}<a href="{{ url_for('pack.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
+
+{% block extrapath %}
+{%- if pack.crews %}
+<span class="dark">BY {% for crew in pack.crews -%}
+<a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|upper }}</a>
+    {%- if not loop.last %} &amp; {% endif -%}
+  {%- endfor -%}
+{%- endif -%}
+</span>
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/dojo.css">
+  <style type="text/css">#progress{margin-top:16px}</style>
+{% endblock %}
+
+{% block extrascript %}
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  {{ javascript('jquery.hashchange') }}
+  {{ javascript('dojo.flat', 0) }}
+{% endblock %}
+
+{% block content %}
+<div id="progress">Loading</div>
+<div id="dojo">
+  <ul class="pack" style="left: auto">
+{% if info %}
+  <div class="fileid">
+    <img src="{{ cdn('.thumbnail', name=pack.name) }}">
+  </div>
+{% endif %}
+{% for file in pack.files %}
+  {%- set highlight=[] -%}
+  {%- set faint=[] -%}
+  {%- if artist %}
+    {%- do faint.append(1) -%}
+    {%- for a in file.artists -%}
+      {%- if a.name == artist -%}
+        {%- do highlight.append(1) -%}
+        {%- do faint.remove(1) -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+    <li class="piece tile{% if highlight %} highlight{% endif %}{% if faint %} faint{% endif %}">
+      <a href="{{ url_for('.pack_file', name=pack.name, filename=file.filename) }}" rel="pack" data-preload="{{ cdn('.pack_file_view', name=pack.name, filename=file.filename) }}">
+        <img src="{{ cdn('.pack_file_preview', name=pack.name, filename=file.filename) }}">
+        <label title="{{ file.filename|upper }}"><span>{{ file.filename|dosname(18) }}</span></label>
+      </a>
+    </li>
+{% endfor %}
+  </ul>
+</div>
+
+{% endblock %}

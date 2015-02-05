@@ -1,0 +1,88 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}T:\EXTMODES\PACK\{{ pack.name|upper }}\{{ pack_file.filename|upper }}{% endblock %}
+
+{% block path -%}
+<a href="{{ url_for('pack.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\<a href="{{ url_for('pack.pack', name=pack.name) }}">{{ pack.name|upper }}</a>\{{ pack_file.filename|upper }}{% endblock %}
+
+{% block extrapath %}
+{%- if pack.crews %}
+<span class="dark">
+  {%- if pack_file.artists -%}
+  BY
+    {% for artist in pack_file.artists %}
+    <a href="{{ url_for('artist.profile', slug=artist.slug) }}">{{ artist.name }}</a>
+      {%- if not loop.last %}, {% endif -%}
+    {%- endfor %}
+  OF
+  {%- else -%}
+  BY
+  {%- endif %}
+  {% for crew in pack.crews -%}
+<a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|upper }}</a>
+    {%- if not loop.last %} &amp; {% endif -%}
+  {%- endfor -%}
+{%- endif -%}
+</span>
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/dojo.css">
+  <style type="text/css">
+    .hidden {
+      display: none;
+    }
+    #pager .tile {
+      width: 160px;
+      height: 160px;
+      background-color: #000;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin: 16px;
+    }
+    #pager #next {
+      float: right;
+    }
+    #pager #prev {
+      float: left;
+    }
+    #piece {
+      text-align: center;
+    }
+    #piece img {
+      margin: 8px;
+    }
+    #piece img, #pager .tile {
+      border: 1px solid #000;
+      border-left-color: #ccc;
+      border-top-color: #ccc;
+      border-right-color: #858585;
+      border-bottom-color: #858585;
+      box-shadow: 8px 8px 8px rgba(85, 85, 85, 0.49);
+    }
+  </style>
+{% endblock %}
+
+{% block extrascript %}
+  {{ javascript('dojo.flat', 0) }}
+{% endblock %}
+
+{% block content %}
+
+    <div id="piece">
+      <img src="{{ cdn('.pack_file_view', name=pack.name, filename=pack_file.filename) }}">
+    </div>
+    <div id="pager">
+{% set prev_pack_file=pack_file.prev %}
+{% set next_pack_file=pack_file.next %}
+    <a href="{{ url_for('.pack_file', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }}" id="prev" title="Previous piece in pack" data-preload="{{ cdn('.pack_file_view', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }}">
+        <div class="tile" style="background-image:url({{ cdn('.pack_file_preview', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }})">
+        </div>
+      </a>
+      <a href="{{ url_for('.pack_file', name=next_pack_file.pack.name, filename=next_pack_file.filename) }}" id="next" title="Next piece in pack" data-preload="{{ cdn('.pack_file_view', name=next_pack_file.pack.name, filename=next_pack_file.filename) }}">
+        <div class="tile" style="background-image:url({{ cdn('.pack_file_preview', name=next_pack_file.pack.name, filename=next_pack_file.filename) }})">
+        </div>
+      </a>
+    </div>
+
+{% endblock %}

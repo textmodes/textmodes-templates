@@ -1,0 +1,145 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}T:\EXTMODES\PACK\{{ pack.name|upper }}{% endblock %}
+
+{% block path %}<a href="{{ url_for('pack.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
+
+{% block extrapath %}
+{%- if pack.crews %}
+<span class="dark">BY {% for crew in pack.crews -%}
+<a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|upper }}</a>
+    {%- if not loop.last %} &amp; {% endif -%}
+  {%- endfor -%}
+{%- endif -%}
+</span>
+{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/dojo.css">
+{% endblock %}
+
+{% block extrascript %}
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  {{ javascript('jquery.hashchange') }}
+  {{ javascript('dojo') }}
+{% endblock %}
+
+{% block content %}
+<div id="progress">Loading</div>
+<div id="dojo">
+  <ul class="pack" style="left: auto">
+{% if info %}
+  <div class="fileid">
+    <img src="{{ cdn('.thumbnail', name=pack.name) }}">
+  </div>
+{% endif %}
+{% for file in pack.files %}
+  {%- set highlight=[] -%}
+  {%- set faint=[] -%}
+  {%- if artist %}
+    {%- do faint.append(1) -%}
+    {%- for a in file.artists -%}
+      {%- if a.name == artist -%}
+        {%- do highlight.append(1) -%}
+        {%- do faint.remove(1) -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+    <li class="piece tile{% if highlight %} highlight{% endif %}{% if faint %} faint{% endif %}">
+      <a href="#{{ file.filename|anchor }}" rel="pack">
+        <img src="{{ cdn('.pack_file_preview', name=pack.name, filename=file.filename) }}">
+        <label title="{{ file.filename|upper }}"><span>{{ file.filename|dosname(18) }}</span></label>
+      </a>
+    </li>
+{% endfor %}
+  </ul>
+</div>
+
+<div style="display:none">
+{% for file in pack.files %}
+  <div id="{{ file.filename|anchor }}" class="card">
+    <div class="front">
+      <img src="{{ cdn('.pack_file_view', name=pack.name, filename=file.filename) }}">
+    </div>
+    <div class="back">
+      <div class="back-wrapped">
+        <h2>PIECE DETAILS</h2>
+        <div class="clear"></div>
+        <p>
+          <table class="full">
+            <tr>
+              <th>FILENAME</th>
+              <td>{{ file.filename|upper }}</td>
+            </tr>
+            <tr>
+              <th>FONT</th>
+              <td>{% if file.font %}{{ file.font|replace('-', ' ')|upper }}{% else %}CP437 8x16{% endif %}</td>
+            </tr>
+            <tr>
+              <th>ARTISTS</th>
+              <td>{% for a in file.artists %}<a href="{{ url_for('artist.profile', slug=a.slug) }}">{{ a.name|upper }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+            </tr>
+            <tr>
+              <th>GROUPS</th>
+              <td>{% if pack.crews.count > 0 %}{% for crew in pack.crews %}<a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|upper }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}Unknown{% endif %}</td>
+           </tr>
+          </table>
+        </p>
+        <p>
+          <h2>SAUCE iNFO</h2>
+          <div class="clear"></div>
+{% if file.sauce_raw.record %}
+{% set sauce=file.sauce_raw %}
+          <table class="full">
+            <tr>
+              <th>TITLE</th>
+              <td>{{ sauce.title|sauce_str }}</td>
+            </tr>
+            <tr>
+              <th>AUTHOR</th>
+              <td>{{ sauce.author|sauce_str }}</td>
+            </tr>
+            <tr>
+              <th>GROUP</th>
+              <td>{{ sauce.group|sauce_str }}</td>
+            </tr>
+            <tr>
+              <th>DATE</th>
+              <td>{{ sauce.date|sauce_date }}</td>
+            </tr>
+            <tr>
+              <th>DATATYPE</th>
+              <td>{{ sauce.datatype_str }}</td>
+            </tr>
+            <tr>
+              <th>FILETYPE</th>
+              <td>{{ sauce.filetype_str }}</td>
+            </tr>
+            <tr>
+              <th>{{ sauce.tinfo1_name|upper or 'TINFO1' }}</th>
+              <td>{{ sauce.tinfo1 }}</td>
+            </tr>
+            <tr>
+              <th>{{ sauce.tinfo2_name|upper or 'TINFO2' }}</th>
+              <td>{{ sauce.tinfo2 }}</td>
+            </tr>
+            <tr>
+              <th>{{ sauce.tinfo3_name|upper or 'TINFO3' }}</th>
+              <td>{{ sauce.tinfo3 }}</td>
+            </tr>
+            <tr>
+              <th>{{ sauce.tinfo4_name|upper or 'TINFO4' }}</th>
+              <td>{{ sauce.tinfo4 }}</td>
+            </tr>
+          </table>
+{% else %}
+          <div>NOT AVAILABLE :(</div>
+{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+{% endblock %}
