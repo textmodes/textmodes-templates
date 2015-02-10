@@ -1,4 +1,6 @@
 {% extends "textmode/base.html" %}
+{% from "textmode/artist/_macro.html" import artist_link %}
+{% from "textmode/crew/_macro.html" import artist_thumbnails, crew_profile %}
 
 {% block path %}<a href="{{ url_for('crew.index') }}">CREW</a>{% endblock %}
 
@@ -8,11 +10,24 @@
 
 {% block extrastyle %}
   <link rel="stylesheet" href="/static/css/crew.css">
-  <script src="/static/js/masonry.pkgd.min.js"></script>
+  {{ artist_thumbnails(crew.artists) }}
 {% endblock %}
 
 {% block content %}
+    <div id="bannerwrapper">
+      <div id="bannertop">
+        <pre>ohai</pre>
+      </div>
+    </div>
     <div class="full">
+      <div style="margin-left:380px">
+        <table class="profile">
+          <tbody>
+{{ crew_profile(crew) }}
+          </tbody>
+        </table>
+      </div>
+      <div class="clear"></div>
       <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
         <pre style="margin-left:32px"> _______ _______ ___     ___   ___ ___ 
 |   _   |   _   |   |   |   | |   Y   |
@@ -28,10 +43,7 @@
           <div style="width:372px; overflow-x: hidden">
             <a href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.title|truncate(24, True) }}</a>
             by
-            {% for artist in colly.artists %}
-            <a href="{{ url_for('artist.profile', slug=artist.slug) }}" class="artist">{{ artist.name|title }}</a>
-              {%- if not loop.last %}, {% endif %}
-            {% endfor %}
+            {% for artist in colly.artists %}{{ artist_link(artist) }}{%- if not loop.last %}, {% endif %}{% endfor %}
           </div>
           <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
         </div>

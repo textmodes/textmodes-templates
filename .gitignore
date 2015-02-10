@@ -4,5 +4,6 @@
 *.org
 
 # Editor swap files
+*.swo
 *.swp
 *~

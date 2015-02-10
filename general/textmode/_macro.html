@@ -1,3 +1,7 @@
+{% macro social_link(social, variant) -%}
+<a href="{{ social.url }}" class="social"><img src="/static/image/icon/social/{{ variant }}/{{ social.site }}.png" alt="{{ social.site|title }}"></a>
+{%- endmacro %}
+
 {% macro dir(drive, dospath, volume, files) %}
 <pre>
 {{ drive|upper }}:\{{ dospath|upper }}&gt; dir

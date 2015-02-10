@@ -10,52 +10,56 @@
 {% endblock %}
 
 {% block content %}
-<div class="full">
-{% if artist.collies.count() > 0 %}
-  <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
-    <pre style="margin-left:64px"> _______ _______ ___     ___   ___ ___ 
-|   _   |   _   |   |   |   | |   Y   |
-|.  |___|.  |   |.  |   |.  | |   |   |
-|.  |___|.  |   |.  |___|.  |__\_   _/ 
-|:  |   |:  |   |:  |   |:  |   |:  |  
-|::.. . |::.. . |::.. . |::.. . |::.|  
-`-------`-------`-------`-------`---'  </pre>
-  </div>
-  <div style="margin-left:380px">
-{% for c in artist.collies.order_by('name') %}
-    <div class="tile colly">
-      <div class="preview">
-        <a href="{{ url_for('colly.show', name=c.name) }}">
-          <img src="{{ url_for('colly.file_id_diz', name=c.name) }}" class="file_id_diz">
-        </a>
-        <label><span>{{ c.title }}</span></label>
-      </div>
-    </div>
-{% endfor %}
-  </div>
-  <div class="clear"></div>
-{% endif %}
-{% for year in years -%}
-  <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
-    <pre style="margin-left:64px">{{ year['year']|ascii_digits }}</pre>
-  </div>
-  <div style="margin-left:380px">
-  {% for pack in year['packs'][::-1] %}
-    {{ tile(pack, artist) }}
-  {% endfor -%}
-  </div>
-  <div class="clear"></div>
-{% endfor -%}
-</div>
-{% endblock %}
+    <div class="full">
+      <h2>Collies on <a href="{{ site_url_for('amiga', 'artist.profile', slug=artist.slug) }}">AMIGA</a>.TEXTMOD.ES</h2>
+  {% if artist.collies.count() > 0 %}
+        <ul class="list">
+    {% for c in artist.collies.order_by('colly.title') %}
+          <li>
+            <a href="{{ site_url_for('amiga', 'colly.show', name=c.name) }}">{{ c.title }}</a>
+      {% if c.crew %}
+            with
+            <a href="{{ site_url_for('amiga', 'crew.info', slug=c.crew.slug) }}">{{ c.crew.name }}</a>
+      {% endif %}
+          </li>
+    {% endfor %}
+        </ul>
+  {% else %}
+        <p>This artist has no collies associated.</p>
+  {% endif %}
+        <div class="clear"></div>
 
-{% macro tile(pack, artist) %}
-    <div class="tile">
-      <div class="preview">
-        <a href="{{ url_for('browse.pack', name=pack.name) }}?artist={{ artist.name|urlencode }}">
-          <img src="{{ url_for('browse.pack_preview', name=pack.name) }}?small=1">
-        </a>
+      <h2>Releases on <a href="{{ site_url_for('c64', 'artist.profile', slug=artist.slug) }}">C64</a>.TEXTMOD.ES</h2>
+  {% if artist.releases.count() > 0 %}
+        <ul>
+    {% for r in artist.releases.order_by('name') %}
+          <li><a href="#">{{ r.name }}</a></li>
+    {% endfor %}
+        </ul>
+  {% else %}
+        <p>This artist has no releases associated.</p>
+  {% endif %}
+        <div class="clear"></div>
+
+        <h2>Pieces on <a href="{{ site_url_for('pc', 'artist.profile', slug=artist.slug) }}">PC</a>.TEXTMOD.ES</h2>
+  {% if artist.pieces.count() > 0 %}
+        <ul class="list">
+    {% for p in artist.pieces.order_by('filename') %}
+          <li>
+            <a href="{{ site_url_for('pc', 'browse.pack', name=p.pack.name) }}#{{ p.filename|anchor }}">{{ p.filename|upper }}</a>
+      {% if p.pack.crews %}
+            with
+        {% for crew in p.pack.crews %}
+            <a href="{{ site_url_for('pc', 'crew.info', slug=crew.slug) }}">{{ crew.name }}</a>
+            {%- if not loop.last %}, {% endif %}
+        {% endfor %}
+      {% endif %}
+          </li>
+    {% endfor %}
+        </ul>
+  {% else %}
+        <p>This artist has no pieces associated.</p>
+  {% endif %}
+        <div class="clear"></div>
       </div>
-      <label><span>{{ pack.name|dosname(18) }}</span></label>
-    </div>
-{% endmacro %}
+{% endblock %}

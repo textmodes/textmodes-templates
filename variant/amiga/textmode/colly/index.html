@@ -1,5 +1,6 @@
 {% extends "textmode/base.html" %}
 {% from "textmode/_macro.html" import pagerbar %}
+{% from "textmode/artist/_macro.html" import artist_link %}
 
 {% block path %}COLLY{% endblock %}
 
@@ -21,26 +22,46 @@
       </div>
       <div class="clear">&nbsp;</div>
       <table class="full">
-        <tr>
-          <th>Title</th>
-          <th class="artists">Artist(s)</th>
-          <th class="crews">Crew</th>
-        </tr>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th class="artists">Artist(s)</th>
+            <th class="crews">Crew</th>
+            <th class="date">Date</th>
+          </tr>
+        </thead>
+        <tbody>
 {% for colly in pager.items %}
-    <tr>
-      <td><a class="name" href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.title|truncate(40, True) }}</a></td>
-      <td>
-{%- for a in colly.artists %}
-<a href="{{ url_for('artist.profile', slug=a.slug) }}">{{ a.name|title }}</a>{% if not loop.last %}, {% endif -%}
-{% endfor -%}
-      </td>
+          <tr>
+            <td><a class="name" href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.title|truncate(40, True) }}</a></td>
+            <td>
+  {%- for artist in colly.artists %}{{ artist_link(artist) }}{% if not loop.last %}, {% endif -%}{% endfor -%}
+            </td>
+            <td>
 {% if colly.crew %}
-<td><a href="{{ url_for('crew.info', name=colly.crew.name) }}">{{ colly.crew.name|title|truncate(12,True) }}</a></td>
+              <a href="{{ url_for('crew.info', slug=colly.crew.slug) }}">{{ colly.crew.name|truncate(12,True) }}</a>
 {% else %}
-      <td>&nbsp;</td>
+              Unknown
 {% endif %}
-    </tr>
+            </td>
+            <td>
+{% set date=colly.date_created.strftime('%Y.%m.%d') %}
+{% if date == "1970.01.01" %}
+              0000.00.00
+              {% else %}
+              {{ date }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td colspan="3">
+              <pre class="file_id_diz">{{ colly.file_id_diz|encode_html }}</pre>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
 {% endfor %}
-  </table>
-</div>
+        </tbody>
+      </table>
+    </div>
 {% endblock %}

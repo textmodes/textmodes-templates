@@ -1,33 +1,82 @@
 {% extends "textmode/base.html" %}
 
-{% block title %}B:\NINJA\PASTE&gt;{% endblock %}
+{% block title %}T:\EXTMODES\PASTE&gt;{% endblock %}
+
+{% block extrastyle %}
+  <style type="text/css">
+  table th {
+    text-align: left;
+    padding-right: 16px;
+  }
+  </style>
+{% endblock %}
 
 {% block path %}PASTE{% endblock %}
 
 {% block content %}
-<div class="wrapped">
-<h1>Paste service</h1>
-<p>
-Showing off your work to your friends? Or just looking to share your latest work-in-progress
-via social media? You can upload your artwork here, and we'll render it to an image for you.
-</p>
-<p>
-<form method="post" action="{{ url_for('paste.index') }}" enctype="multipart/form-data">
-{{ form.csrf_token }}
-<table>
-<tr>
-  <th>{{ form.font.label }}</th>
-  <td>{{ form.font() }}</td>
-</tr>
-<tr>
-  <th>{{ form.upload.label }}</th>
-  <td>{{ form.upload(size=20) }}</td>
-</tr>
-<tr>
-  <td>&nbsp;</td>
-  <td><input type="submit" value="Paste it!"></td>
-</tr>
-</form>
-</p>
-</div>
+  <div class="wrapped">
+    <h1>Paste service</h1>
+    <p>
+      Showing off your work to your friends? Or just looking to share your latest work-in-progress
+      via social media? You can upload your artwork here, and we'll render it to an image for you.
+    </p>
+    <p>
+      <form method="post" action="{{ url_for('paste.index') }}" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        <table class="form">
+          </tbody>
+            <tr>
+              <th>{{ form.font.label }}</th>
+              <td>{{ form.font() }}</td>
+            </tr>
+            <tr>
+              <th>{{ form.upload.label }}</th>
+              <td>{{ form.upload(size=20) }}</td>
+            </tr>
+  {% if form.upload.errors %}
+            <tr class="error">
+              <th></th>
+              <td>{{ form.upload.errors|join('<br>')|safe }}</td>
+            </tr>
+  {% endif %}
+  {% if user.is_authenticated() %}
+            <tr>
+              <th>{{ form.public.label }}</th>
+              <td>{{ form.public }} List publicly</td>
+            </tr>
+  {% else %}
+            <tr>
+              <th>{{ form.public.label }}</th>
+              <td>
+                <input checked="" id="public" name="public" type="checkbox" value="y" readonly="" onclick="return false;" state="off"> List publicly
+                (<a href="{{ url_for('user.login', next=url_for('.index')) }}">sign in</a> to make private pastes).
+              </td>
+            </tr>
+  {% endif %}
+            <tr>
+              <td></td>
+              <td><input type="submit" value="Paste it!"></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </p>
+
+  {% if current_user.is_authenticated() %}
+    <h2>Your previous pastes</h2>
+    {% if current_user.pastes|length > 0 %}
+    <ul class="list">
+      {% for paste in current_user.pastes %}
+      <li>
+        <a href="{{ url_for('.pasted', key=paste.key) }}">{{ paste.filename }}</a>
+        on {{ paste.date_created.strftime('%Y.%m.%d %H:%M') }}
+        {% if not paste.is_public %}(private){% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p><em>No pastes yet!</em></p>
+    {% endif %}
+  {% endif %}
+  </div>
 {% endblock %}

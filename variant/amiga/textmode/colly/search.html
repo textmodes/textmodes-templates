@@ -13,11 +13,11 @@
 
 {% block content %}
     <div class="wrapped">
-{% if pager.items %}
+{% if result.total %}
       <div class="bar">
         <form method="get" action="{{ url_for('.search') }}">
-          {{ pagerbar(pager, '.search', query) }}
-          {{ pager.total }} results
+          {{ pagerbar(result, '.search', query) }}
+          {{ result.total }} results
           <span style="float:right">
             <input type="text" name="q" value="{{ q }}" placeholder="search query">
             <input type="submit" value="search">
@@ -25,16 +25,53 @@
         </form>
       </div>
       <table class="full">
-        <tbody>
-{% for colly in pager.items %}
+        <thead>
           <tr>
-            <td><a href="{{ url_for('.show', name=colly.name) }}">{{ colly.filename }}</a></td>
-{% set date=colly.date_created.strftime('%Y.%m.%d') %}
-{% if date == "1970.01.01" %}{% set date="0000.00.00" %}{% endif %}
-            <td>{{ date }}</td>
-            <td><pre style="width:360px;overflow-x:hidden">{{ colly.file_id_diz|encode_html }}</pre></td>
+            <th>Title</th>
+            <th class="artists">Artist(s)</th>
+            <th class="crews">Crew</th>
+            <th class="date">Date</th>
           </tr>
-{% endfor %}
+        </thead>
+        <tbody>
+  {% for colly in result.items %}
+          <tr>
+            <td style="padding-right:16px">
+              <a href="{{ url_for('.show', name=colly.name) }}">{{ colly.title|truncate(40, True) }}</a>
+            </td>
+            <td>
+    {% if colly.artist %}
+      {% for artist in colly.artist %}
+              <a href="{{ url_for('artist.profile', slug=artist.slug) }}">{{ artist.name }}</a>
+        {%- if not loop.last %}, {% endif -%}
+              </a>
+      {% endfor %}
+    {% else %}
+              Unknown
+    {% endif %}
+            </td>
+            <td>
+      {% if colly.crew %}
+        {% set crew=colly.crew[0] %}
+              <a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|truncate(12, True) }}</a>
+      {% else %}
+              Unknown
+      {% endif %}
+            </td>
+    {% set date="0000.00.00" %}
+    {% if colly.date_created %}
+      {% set date=colly.date_created.strftime('%Y.%m.%d') %}
+    {% endif %}
+    {% if date == "1970.01.01" %}{% set date="0000.00.00" %}{% endif %}
+            <td>{{ date }}</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td colspan="3">
+              <pre class="file_id_diz">{{ colly.file_id_diz|encode_html }}</pre>
+            </td>
+          </tr>
+  {% endfor %}
         </tbody>
       </table>
 {% else %}

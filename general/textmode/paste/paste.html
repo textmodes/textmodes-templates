@@ -1,12 +1,71 @@
 {% extends "textmode/base.html" %}
 
-{% block title %}B:\NINJA\PASTE&gt;{% endblock %}
+{% block title %}T:\EXTMODES\PASTE\{{ paste.filename|dosname }}{% endblock %}
 
-{% block path %}<a href="{{ url_for('paste.index') }}">PASTE</a>\{{ paste.filename|dosname }}{% endblock %}
+{% block extrastyle %}
+  <style type="text/css">
+  .medium {
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .medium img {
+    opacity: 0.5;
+    -o-transition: opacity .25 ease-in-out
+    -moz-transition: opacity .25 ease-in-out
+    -webkit-transition: opacity .25 ease-in-out
+    transition: opacity .25 ease-in-out
+  }
+  .medium img:hover {
+    opacity: 1;
+  }
+  .share, .paste {
+    margin-top: 16px;
+  }
+  </style>
+{% endblock %}
 
 {% block content %}
 <div class="wrapped">
-<h1><a href="{{ url_for('paste.pasted_file', key=paste.key, filename=paste.filename) }}">{{ paste.filename|upper }}</a> by {{ paste.user_created }}</h1>
-<img src="{{ url_for('paste.pasted_view', key=paste.key) }}" alt="{{ paste.filename|upper }}" title="{{ paste.filename|upper }}">
+  <form method="post" action="{{ url_for('.pasted', key=paste.key) }}">
+  <h1 class="form">
+    <a href="{{ url_for('.index') }}">Paste</a> of
+    <a href="{{ url_for('paste.pasted_file', key=paste.key, filename=paste.filename) }}">{{ paste.filename|upper }}</a>
+    by {{ paste.user_created }}
+    <select name="font" onchange="this.form.submit();" style="color:#ccc">
+      <option value="">Clone</option>
+      {% for k, v in fonts %}<option value="{{ k }}">{{ v }}</option>{% endfor %}
+    </select>
+  </h1>
+  </form>
+  <div class="share">
+    <div class="medium">
+      <a href="https://delicious.com/save?v=5&provider=textmod.es&noui&jump=close&url=http://textmod.es{{ url_for('paste.pasted', key=paste.key) }}" onclick="window.open('https://delicious.com/save?v=5&provider=textmod.es&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=550,height=550'); return false;">
+        <img src="/static/image/icon/social/pc/delicious.png" alt="Delicious" title="Share on Delicious">
+      </a>
+    </div>
+    <div class="medium">
+      <a href="https://digg.com/submit?phase=2&url=http://textmod.es{{ url_for('paste.pasted', key=paste.key) }}&title={{ paste.filename|urlencode }}&bodytext=Pasted+{{ paste.filename|urlencode }}+on+textmod.es">
+        <img src="/static/image/icon/social/pc/digg.png" alt="Digg" title="Share on Digg">
+      </a>
+    </div>
+    <div class="medium">
+      <a href="https://www.facebook.com/sharer/sharer.php?u=http://textmod.es{{ url_for('paste.pasted', key=paste.key) }}" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href), 'facebook', 'toolbar=no,width=550,height=550'); return false;">
+        <img src="/static/image/icon/social/pc/facebook.png" alt="Facebook" title="Share on Facebook">
+      </a>
+    </div>
+    <div class="medium">
+      <a href="https://www.reddit.com/submit?url=http://textmod.es{{ url_for('paste.pasted', key=paste.key) }}">
+        <img src="/static/image/icon/social/pc/reddit.png" alt="Reddit" title="Share on Reddit">
+      </a>
+    </div>
+    <div class="medium">
+      <a href="http://twitter.com/intent/tweet?text=http://textmod.es{{ url_for('paste.pasted', key=paste.key) }}+on+%23TEXTMODES" onclick="window.open('http://twitter.com/intent/tweet?text='+encodeURIComponent(location.href)+encodeURIComponent(' on #TEXTMODES'), 'twitter', 'toolbar=no,width=550,height=550'); return false;">
+        <img src="/static/image/icon/social/pc/twitter.png" alt="Twitter" title="Share on Twitter">
+      </a>
+    </div>
+  </div>
+  <div class="paste">
+    <img src="{{ url_for('paste.pasted_view', key=paste.key) }}" alt="{{ paste.filename|upper }}" title="{{ paste.filename|upper }}">
+  </div>
 </div>
 {% endblock %}

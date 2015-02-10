@@ -1,0 +1,106 @@
+{% from "textmode/_macro.html" import social_link %}
+
+{% macro artist_link(artist) -%}
+<a href="{{ url_for('artist.profile', slug=artist.slug) }}" class="artist artist-{{ artist.slug|anchor }}" style="background-image:url({{ cdn('artist.icon', slug=artist.slug) }})">{{ artist.name }}</a>
+{%- endmacro %}
+
+{% macro artist_profile(artist, variant) %}
+            <tr>
+              <th>Artist</th>
+              <td>
+  {% if artist.profile and artist.profile.real_name and artist.profile.show_real_name and artist.profile.real_name != artist.name %}
+                {{ artist.profile.real_name|encode('unidecode') }}
+                <span class="c8">
+                  (AKA {{ artist.name }}
+    {%- if artist.aliases -%},
+      {% for alias in artist.aliases -%}{{ alias.name }}{%- if not loop.last %}, {% endif -%}{% endfor -%}
+    {% endif -%})</span>
+  {% else %}
+                {{ artist.name }}
+    {% if artist.aliases %}
+                <span class="c8">(AKA {% for alias in artist.aliases -%}{{ alias.name }}{%- if not loop.last %}, {% endif -%}{% endfor %})</span>
+    {% endif %}
+  {% endif %}
+  {% if artist.profile %}
+    {% if artist.profile.born and artist.profile.died %}
+      {{ artist.profile.born }}* - {{ artist.profile.died }}&#x271D;
+    {% elif artist.profile.born %}
+      {{ artist.profile.born }}*
+    {% elif artist.profile.died %}
+      {{ artist.profile.died }}&#x271D;
+    {% endif %}
+  {% endif %}
+              </td>
+            </tr>
+  {% if artist.profile and artist.profile.website %}
+            <tr>
+              <th>Website</th>
+              <td>
+                <a href="{{ artist.profile.website }}">{{ artist.profile.website }}</a>
+              </td>
+            </tr>
+  {% endif %}
+            <tr>
+              <th>Crew participation</th>
+  {% if artist.crews.count() > 0 %}
+              <td>
+    {% for crew in artist.crews.order_by('crew.name') %}
+                <a href="{{ url_for('crew.info', slug=crew.slug) }}?artist={{ artist.slug }}">{{ crew.name }}</a>
+      {%- if not loop.last %}, {% endif %}
+    {% endfor %}
+              </td>
+  {% else %}
+              <td>None</td>
+  {% endif %}
+            </tr>
+            <tr>
+              <th>Country</th>
+  {% if artist.profile and artist.profile.country %}
+              <td>
+                <img src="/static/image/icon/country/{{ artist.profile.country|lower }}.png" alt="{{ artist.profile.country }}" class="country">
+                {{ artist.profile.country_name }}
+                <span class="c8">({{ artist.profile.country }})</span>
+              </td>
+  {% else %}
+              <td>Not specified</td>
+  {% endif %}
+            </tr>
+  {% if variant == 'amiga' %}
+    {% set other=artist.pieces.count() %}
+    {% if other > 0 %}
+            <tr>
+              <th>Block art</th>
+              <td>
+                This artist also created
+                <a href="http://pc.textmod.es{{ url_for('.profile', slug=artist.slug) }}">{{ other }} piece{{ other|plural }}</a>
+              </td>
+            </tr>
+    {% endif %}
+  {% endif %}
+  {% if variant == 'pc' %}
+    {% set other=artist.collies.count() %}
+    {% if other > 0 %}
+            <tr>
+              <th>Amiga art</th>
+              <td>
+                This artist also created
+                <a href="http://amiga.textmod.es{{ url_for('.profile', slug=artist.slug) }}">{{ other }} ASCII coll{{ other|plural('y', 'ies') }}</a>
+              </td>
+            </tr>
+    {% endif %}
+  {% endif %}
+  {% if artist.social.count() > 0 %}
+          <tr>
+            <th>Social media</th>
+            <td>
+    {% for social in artist.social %}{{ social_link(social, variant) }}{% endfor %}
+            </td>
+  {% endif %}
+  {% if artist.profile and artist.profile.bio %}
+            <tr>
+              <th>Biography</th>
+              <td>{{ artist.profile.bio|encode('markdown') }}</td>
+              <td>Not specified</td>
+            </tr>
+  {% endif %}
+{% endmacro %}

@@ -1,0 +1,70 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+    <h2>Sing up for a TEXTMOD.ES account today!</h2>
+    <p>
+      With a free account at TEXTMOD.ES, you will be able to:
+      <ul class="list">
+        <li>Claim artwork and artist names</li>
+        <li>Contribute artwork to the project</li>
+        <li>Change artist and group information</li>
+        <li>Change artwork fonts</li>
+      </ul>
+    </p>
+    <form action="{{ url_for('.join_signup') }}" method="post">
+      {{ form.csrf_token }}
+      <table class="form">
+        <tbody>
+          <tr>
+            <th>{{ form.password.label }}</th>
+            <td>{{ form.password(size=32) }}</td>
+          </tr>
+          {% if form.errors.password %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.errors.password|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.confirm.label }}</th>
+            <td>{{ form.confirm(size=32) }}</td>
+          </tr>
+          {% if form.errors.confirm %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.errors.confirm|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.first_name.label }}</th>
+            <td>{{ form.first_name(size=32) }}</td>
+          </tr>
+          {% if form.errors.first_name %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.errors.first_name|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.last_name.label }}</th>
+            <td>{{ form.last_name(size=32) }}</td>
+          </tr>
+          {% if form.errors.last_name %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.errors.last_name|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.country.label }}</th>
+            <td>{{ form.country }}</td>
+          </tr>
+          <tr>
+            <th></th>
+            <td><input type="submit" value="Complete signup"></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+    </form>
+{% endblock %}

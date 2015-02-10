@@ -1,0 +1,72 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+  {% set home=url_for('artist.profile', slug=artist.slug) %}
+    <h2>
+      Your Amiga ASCII collies
+      on <a href="http://amiga.textmod.es/{{ home }}">AMIGA</a>.TEXTMOD.ES
+    </h2>
+  {% if artist.collies.count() == 0 %}
+    <p>
+      <em>No collies found.</em>
+    </p>
+  {% else %}
+    <ul class="list">
+    {% for colly in artist.collies.order_by('date_created DESC') %}
+      <li>
+        <a href="http://amiga.textmod.es/colly/{{ colly.name|urlencode }}/">{{ colly.name }}</a>
+      {% if colly.crew %}
+        with
+        <a href="http://amiga.textmod.es/crew/{{ colly.crew.slug|urlencode }}/">{{ colly.crew.name|title }}</a>
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+    <br>
+  {% endif %}
+
+    <h2>
+      Your PETSCII releases
+      on <a href="http://c64.textmod.es/{{ home }}">C64</a>.TEXTMOD.ES
+    </h2>
+  {% if artist.releases.count() == 0 %}
+    <p>
+      <em>No releases found.</em>
+    </p>
+  {% else %}
+    <ul class="list">
+    {% for release in artist.releases.order_by('date_created DESC') %}
+      <li>
+        <a href="http://c64.textmod.es/petscii/release/{{ release.name|urlencode }}/">{{ release.name }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+    <br>
+  {% endif %}
+
+    <h2>
+      Your artscene pieces
+      on <a href="http://pc.textmod.es/{{ home }}">PC</a>.TEXTMOD.ES
+    </h2>
+  {% if artist.pieces.count() == 0 %}
+    <p>
+      <em>No releases found.</em>
+    </p>
+  {% else %}
+    <ul class="list">
+    {% for piece in artist.pieces.order_by('date_created DESC') %}
+      <li>
+        {{ piece.filename|upper }} on
+        <a href="http://pc.textmod.es/pack/{{ piece.pack.name|urlencode }}/">{{ piece.pack.name|upper }}</a>
+      {% if piece.pack.crews %}
+        with
+        {% for crew in piece.pack.crews %}
+        <a href="http://pc.textmod.es/crew/{{ crew.slug|urlencode }}/">{{ crew.name|title }}</a>
+        {%- if not loop.last %}, {% endif %}
+        {% endfor %}
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

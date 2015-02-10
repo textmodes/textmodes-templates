@@ -1,4 +1,5 @@
 {% extends "textmode/base.html" %}
+{% from "textmode/artist/_macro.html" import artist_link %}
 
 {% block content %}
     <div class="wrapped">
@@ -17,17 +18,18 @@
         <div style="display: inline-block; width: 372px; height: 176px;margin:16px 0">
           <div style="width: 372px;overflow-x:hidden">
             <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">{{ colly.title|truncate(32, True) }}</a>
-            {%- if colly.artists %}
-            by
-            {%- for artist in colly.artists %}
-            <a href="{{ url_for('artist.profile', slug=artist.slug) }}" class="artist">{{ artist.name|title }}</a>{% if not loop.last %}, {% endif %}
-            {%- endfor %}
-            {%- endif %}
+  {%- if colly.artists %}
+            by {% for artist in colly.artists %}{{ artist_link(artist) }}{% if not loop.last %}, {% endif %}{%- endfor %}
+    {%- if colly.crew %} of <a href="{{ url_for('crew.info', slug=colly.crew.slug) }}" class="crew">{{ colly.crew.name }}</a>{% endif %}
+  {%- endif %}
           </div>
           <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
           <div class="clear"></div>
         </div>
-    {% endfor %}
+{% endfor %}
+        <p>
+          <a href="{{ url_for('colly.index') }}">... or continue to the colly index</a>
+        </p>
       </div>
       <h2>What's this?</h2>
       <p>

@@ -1,4 +1,5 @@
 {% extends "textmode/base.html" %}
+{% from "textmode/crew/_macro.html" import artist_thumbnails, crew_profile %}
 
 {% block title %}T:\EXTMODES\PC\CREW\{{ crew.name|upper }}{% endblock %}
 
@@ -31,19 +32,8 @@
     height: 288px;
     background: url(/static/image/crew/banner.png);
   }
-  {% for artist in crew.artists %}
-  #artist-{{ artist.slug|anchor }} {
-    background-image: url({{ cdn('artist.icon', slug=artist.slug) }});
-  }
-  {% endfor %}
-  @media screen and (-webkit-min-device-pixel-ratio: 2), screen and (max--moz-device-pixel-ratio: 2) {
-    {% for artist in crew.artists %}
-    #artist-{{ artist.slug|anchor }} {
-      background-image: url({{ cdn('artist.icon', slug=artist.slug, scale=2) }});
-    }
-    {% endfor %}
-  }
   </style>
+  {{ artist_thumbnails(crew.artists) }}
 {% endblock %}
 
 {% block extrascript %}
@@ -51,83 +41,42 @@
 {% endblock %}
 
 {% block main %}
-  <div id="bannerwrapper">
-    <div id="bannertop">
-    </div>
-    <div id="banner">
-      <div id="inner">
+    <div id="bannerwrapper">
+      <div id="bannertop">
+      </div>
+      <div id="banner">
+        <div id="inner">
+        </div>
       </div>
     </div>
-  </div>
-  <div class="full">
+    <div class="full">
 {% if crew.profile or crew.artists.count() > 0 %}
 {% set countries=crew.countries %}
-    <div style="float:left;width:372px;margin-right:-372px;text-shadow: 8px 8px #858585">
-      <pre style="margin-left:64px">
+      <div style="float:left;width:372px;margin-right:-372px;text-shadow: 8px 8px #858585">
+        <pre style="margin-left:64px">
 </pre>
-    </div>
-    <div style="margin-left:372px; padding: 8px">
-      <table class="profile">
-        <tbody>
-  {% if crew.profile.website %}
-          <tr>
-            <th>Website</th>
-            <td><a href="{{ crew.profile.website }}">{{ crew.profile.website }}</a></td>
-          </tr>
-  {% endif %}
-  {% if crew.profile.bio %}
-          <tr>
-            <th>About</th>
-            <td>{{ crew.profile.bio|encode('markdown') }}</td>
-          </tr>
-  {% endif %}
-  {% if countries|length > 0 %}
-          <tr>
-            <th>Countr{{ countries|plural('y', 'ies') }}</th>
-            <td>
-              {% for country in countries %}
-              <img src="/static/image/icon/country/{{ country.alpha2|lower }}.png" alt="{{ country.alpha2 }}" title="{{ country.name }}"> {{ country.name }}
-              {% endfor %}
-            </td>
-          </tr>
-  {% endif %}
-  {% if crew.social.count() > 0 %}
-          <tr>
-            <th>Social media</th>
-            <td>
-    {% for social in crew.social.order_by('site ASC') %}
-              <a href="{{ social.url }}">
-                <img src="/static/image/icon/{{ social.site }}.png" alt="{{ social.site|title }}">
-              </a>
-    {% endfor %}
-            </td>
-  {% endif %}
-  {% if crew.artists.count() > 0 %}
-          <tr>
-            <th>Artists</th>
-            <td>
-              {% for artist in crew.artists %}
-              <a href="{{ url_for('artist.profile', slug=artist.slug) }}" id="artist-{{ artist.slug|anchor }}" class="artist">{{ artist.name|title }}</a>
-              {% endfor %}
-          </tr>
-  {% endif %}
-        </tbody>
-      </table>
-    </div>
-    <div class="clear"></div>
+      </div>
+      <div style="margin-left:372px; padding: 8px">
+        <table class="profile">
+          <tbody>
+{{ crew_profile(crew) }}
+          </tbody>
+        </table>
+      </div>
+      <div class="clear"></div>
 {% endif %}
 {% for year in years[::-1] -%}
-    <div style="float:left;width:372px;margin-right:-372px;text-shadow: 8px 8px #858585">
-      <pre style="margin-left:64px">{{ year['year']|ansi_digits }}</pre>
-    </div>
-    <div style="margin-left:372px">
-    {% for pack in year['packs'][::-1] %}
+      <div style="float:left;width:372px;margin-right:-372px;text-shadow: 8px 8px #858585">
+        <pre style="margin-left:64px">{{ year['year']|ansi_digits }}</pre>
+      </div>
+      <div style="margin-left:372px">
+  {% for pack in year['packs'][::-1] %}
       {{ tile(pack) }}
-    {% endfor -%}
-    </div>
-    <div class="clear"></div>
+  {% endfor -%}
+      </div>
+      <div class="clear"></div>
 {% endfor -%}
-  </div>
+    </div>
 {% endblock %}
 
 {% macro tile(pack) %}

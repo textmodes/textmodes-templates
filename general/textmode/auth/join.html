@@ -1,0 +1,112 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+    <h2>Join TEXTMOD.ES today!</h2>
+    <p>
+      With a free account at TEXTMOD.ES, you will be able to:
+      <ul class="list">
+        <li>Claim artwork and artist names</li>
+        <li>Contribute artwork to the project</li>
+        <li>Change artist and group information</li>
+        <li>Change artwork fonts</li>
+      </ul>
+    </p>
+    <h3>Got an invite code?</h3>
+    <p>
+      Did you receive an invite from another member? Use your token to sign
+      up for a free account here and start contributing!
+    </p>
+    <form action="{{ url_for('.join', token=token) }}" method="post">
+      <input type="hidden" name="action" value="join">
+      {{ form.join.csrf_token }}
+      <table class="form">
+        <tbody>
+          <tr>
+            <th>{{ form.join.email.label }}</th>
+            <td>{{ form.join.email(size=32) }}</td>
+          </tr>
+          {% if form.join.errors.email %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.join.errors.email|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.join.token.label }}</th>
+            <td>{{ form.join.token(size=32) }}</td>
+          </tr>
+          {% if form.join.errors.token %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.join.errors.token|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th></th>
+            <td><input type="submit" value="Join"></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+{% if form.request.show %}
+    <br>
+    <h3>Request an invite</h3>
+    <p>
+      No invite, but eager to join? Please tell us a bit more about who you are
+      and what your group affliliations are and we'll send you an invite code
+      once approved.
+    </p>
+    <form action="{{ url_for('.join') }}" method="post">
+      <input type="hidden" name="action" value="request">
+      {{ form.request.csrf_token }}
+      <table class="form">
+        <tbody>
+          <tr>
+            <th>{{ form.request.email.label }}</th>
+            <td>{{ form.request.email(size=32) }}</td>
+          </tr>
+          {% if form.request.errors.email %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.request.errors.email|join(', ') }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.request.affiliation.label }}</th>
+            <td>{{ form.request.affiliation(size=32) }}</td>
+          </tr>
+          {% if form.request.errors.affiliation %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.request.errors.affiliation|join(', ') }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.request.message.label }}</th>
+            <td>{{ form.request.message }}</td>
+          </tr>
+          {% if form.request.errors.message %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.request.errors.message|join(', ') }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>are you human?</th>
+            <td>{{ form.request.recaptcha }}</td>
+          </tr>
+          {% if form.request.errors.recaptcha %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.request.errors.recaptcha|join(', ') }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th></th>
+            <td><input type="submit" value="Request invite"></td>
+          </tr>
+        </tbody>
+      </table>
+{% endif %}
+    </form>
+{% endblock %}

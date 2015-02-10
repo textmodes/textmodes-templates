@@ -158,7 +158,7 @@
           </a>
           {% elif item._type == 'pack_file' %}
           {% set pack=item.pack %}
-          <a href="{{ url_for('pack.pack', name=pack.name) }}#{{ item.filename|urlencode }}" class="hit">
+          <a href="{{ url_for('pack.pack_file', name=pack.name, filename=item.filename) }}" class="hit">
             <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('pack.pack_file_preview', name=pack.name, filename=item.filename, variant='tile') }})">
               <span>
                 {{ item.filename|dosname(18) }}

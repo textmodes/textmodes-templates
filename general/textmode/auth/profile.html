@@ -1,0 +1,73 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+    <h2>Your profile</h2>
+
+    <form method="post" action="{{ url_for('.profile') }}">
+      {{ form.profile.csrf_token }}<input type="hidden" name="action" value="profile">
+      <table class="form">
+        <tbody>
+          <tr>
+            <th>{{ form.profile.first_name.label }}</th>
+            <td>{{ form.profile.first_name(size=32) }}</td>
+          </tr>
+          {% if form.profile.errors.first_name %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.profile.errors.first_name|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.profile.last_name.label }}</th>
+            <td>{{ form.profile.last_name(size=32) }}</td>
+          </tr>
+          {% if form.profile.errors.last_name %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.profile.errors.last_name|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>{{ form.profile.country.label }}</th>
+            <td>{{ form.profile.country }}</td>
+          </tr>
+          {% if form.profile.errors.country %}
+          <tr class="error">
+            <th></th>
+            <td>{{ form.profile.errors.country|join('<br>')|safe }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th></th>
+            <td><input type="submit" value="Update"></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+
+    <br>
+    <h2>You as an artist</h2>
+
+    {% if user.artists|length > 0 %}
+    <p>
+      Currently claimed artist handles:
+    </p>
+    <ul class="list">
+      {% for artist in user.artists %}
+      <li><a href="{{ url_for('.profile_artist', slug=artist.slug) }}">{{ artist.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <br>
+    <p>
+      You may apply to claim an artist handle, so that you can manage the
+      artworks linked to that artist name. In order to do so, you first make
+      a claim and then ask other members to vouch for you.
+    </p>
+
+    <form method="post" action="{{ url_for('.profile') }}">
+      <input type="hidden" name="action" value="claim_artist">
+    </form>
+
+{% endblock %}

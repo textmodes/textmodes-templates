@@ -37,9 +37,9 @@ T:\<a href="http://textmod.es/">EXTMODES</a>\<a href="/">PC</a>\{%- block path -
   {{ javascript('headroom') }}
   {{ javascript('jquery.headroom') }}
   {{ javascript('common') }}
-  {{ javascript('jquery.colorbox') }}
-  <script src="/static/js/imagesloaded.pkgd.min.js"></script>
-  <script>$('header').headroom();</script>
+  {# javascript('jquery.colorbox') #}
+  {{ javascript('imagesloaded.pkgd') }}
 {% block extrascript %}{% endblock %}
+  <script>$('header').headroom();</script>
 </body>
 </html>

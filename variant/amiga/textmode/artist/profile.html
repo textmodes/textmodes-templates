@@ -1,4 +1,5 @@
 {% extends "textmode/base.html" %}
+{% from "textmode/artist/_macro.html" import artist_profile %}
 
 {% block path %}<a href="{{ url_for('artist.index') }}">ARTIST</a>{% endblock %}
 
@@ -13,6 +14,16 @@
 
 {% block content %}
 <div class="full">
+      <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585; min-height: 160px">
+        <img src="{{ url_for('artist.thumbnail', slug=artist.slug) }}" alt="{{ artist.name }}" class="artist-thumbnail">
+      </div>
+      <div style="margin-left:380px; padding: 8px; min-height: 160px">
+        <table class="profile">
+          <tbody>
+{{ artist_profile(artist, 'amiga') }}
+          </tbody>
+        </table>
+      </div>
 {% if artist.collies.count() > 0 %}
   <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
     <pre style="margin-left:32px"> _______ _______ ___     ___   ___ ___ 
