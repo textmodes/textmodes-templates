@@ -1,5 +1,6 @@
 {% extends "textmode/base.html" %}
 {% from "textmode/artist/_macro.html" import artist_link %}
+{% from "textmode/comment/_macro.html" import comments_for %}
 
 {% block path %}<a href="{{ url_for('.index') }}">COLLY</a>{% endblock %}
 
@@ -24,6 +25,7 @@
 {% block content %}
     <div class="wrapped">
       <pre id="colly"{% if font %} style="font-family: '{{ font }}'"{% endif %}>{{ art.art_html|safe }}</pre>
+      {{ comments_for(colly, comment_form, user) }}
       </div>
       <div id="side">
         <pre>{{ art.file_id_diz_html|safe }}</pre>

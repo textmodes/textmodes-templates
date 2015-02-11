@@ -1,0 +1,51 @@
+{% macro comments_for(model, form, user) %}
+    <div id="comments">
+      <h2>Comments</h2>
+  {% if user and user.is_authenticated %}
+      <form method="post" action="{{ request.path }}#comments" id="comment-form">
+        {{ form.hidden_tag() }}
+        {{ form.comment }}
+    {% if form.errors.comment %}
+        <p class="error">{{ form.errors.comment|join('<br>')|safe }}</p>
+    {% endif %}
+        <div>
+          <span style="float:right">
+            <a href="{{ url_for('docs.docs_file', filename='markdown') }}">Markdown</a> supported.
+          </span>
+          <input type="submit" value="save">
+        </div>
+      </form>
+  {% else %}
+      <p>
+        <textarea readonly name="comment"></textarea>
+        <a href="{{ url_for('user.login', next=request.path) }}">Log in</a> to leave a comment.
+      </p>
+  {% endif %}
+  {% for comment in model.comments %}
+    {{ comment_tree(comment) }}
+  {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro comment_tree(comment) %}
+      <div>
+        <div id="comment-{{ comment.id }}" class="comment">
+          <p>
+            <a href="#">{{ comment.user }}</a>
+            <span class="score">{{ comment.score }} points</span>
+            <time title="{{ comment.date_created.strftime('%H:%M %Y.%m.%d') }}" datetime="{{ comment.date_created.isoformat() }}">{{ comment.date_created|duration }}</time>
+            <span class="tools"></span>
+          </p>
+          <div class="comment-text">
+            {{ comment.comment|encode('markdown_safe') }}
+          </div>
+        </div>
+  {% if comment.replies %}
+        <div class="parent">
+    {% for reply in comment.replies %}
+      {{ comment_tree(reply) }}
+    {% endfor %}
+        </div>
+  {% endif %}
+      </div>
+{% endmacro %}
