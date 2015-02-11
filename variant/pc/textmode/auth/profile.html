@@ -1,0 +1,90 @@
+{% extends "textmode/base.html" %}
+{% from "textmode/artist/_macro.html" import artist_link %}
+{% from "textmode/crew/_macro.html" import crew_link %}
+
+{% block path %}USER\{{ profile.username|upper }}{% endblock %}
+
+{% block extrastyle %}
+  {{ stylesheet('dojo') }}
+{% endblock %}
+
+{% block extrascript %}
+  <script src="/static/js/masonry.pkgd.min.js"></script>
+  {{ javascript('jquery.hashchange') }}
+  {{ javascript('dojo.flat', 0) }}
+{% endblock %}
+
+{% block content %}
+    <div class="twocols">
+      <div class="left" style="text-align:right">
+        <img src="{{ profile.thumbnail_url() }}" alt="{{ profile.username }}" style="padding-right:16px;width:160px;height:160px">
+      </div>
+      <div class="right">
+        <table class="profile">
+          <tbody>
+            <tr>
+              <th>Username</th>
+              <td>{{ profile.username }}</td>
+            </tr>
+            <tr>
+              <th>Member since</th>
+              <td>{{ profile.date_created.strftime('%Y.%m.%d') }}</td>
+            </tr>
+{% if profile.artists %}
+            <tr>
+              <th>Artist</th>
+              <td>
+  {% for artist in profile.artists %}{{ artist_link(artist) }}{% endfor %}
+              </td>
+            </tr>
+{% endif %}
+          </tbody>
+        </table>
+
+        <h2>Pieces</h2>
+{% if profile.pieces.count() > 0 %}
+        <div id="progress">Loading</div>
+        <div class="dojo">
+          <ul class="pack" style="left: auto">
+  {% for piece in profile.pieces %}
+            <li class="piece tile">
+              <a href="{{ site_url_for('pc', 'pack.pack_file', name=piece.pack.name, filename=piece.filename) }}">
+                <img src="{{ site_url_for('pc', 'pack.pack_file_preview', name=piece.pack.name, filename=piece.filename) }}">
+                <label title="{{ piece.filename|upper }}"><span>{{ piece.filename|dosname(18) }}</span></label>
+              </a>
+            </li>
+  {% endfor %}
+          </ul>
+        </div>
+{% else %}
+        <blockquote>No pieces found.</blockquote>
+{% endif %}
+
+        <h2>Collies</h2>
+{% if profile.collies.count() > 0 %}
+        <p>
+          This user created {{ profile.collies.count() }} collies on
+          <a href="http://amiga.textmod.es{{ url_for('auth.profile', username=profile.username) }}">amiga.textmod.es</a>.
+        </p>
+{% else %}
+        <blockquote>No collies found.</blockquote>
+{% endif %}
+
+        <h2>Public pastes</h2>
+        <div class="dojo">
+          <ul class="pack" style="left:auto">
+{% for paste in profile.pastes %}
+  {% if paste.is_public %}
+            <li class="piece tile">
+              <a href="http://textmod.es/paste/{{ paste.key }}/">
+                <img src="http://textmod.es/paste/preview/{{ paste.key }}.png">
+                <label title="{{ paste.filename|upper }}"><span>{{ paste.filename|dosname(18) }}</span></label>
+              </a>
+            </li>
+  {% endif %}
+{% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+{% endblock %}

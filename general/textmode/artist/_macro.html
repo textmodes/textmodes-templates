@@ -1,4 +1,5 @@
 {% from "textmode/_macro.html" import social_link %}
+{% from "textmode/auth/_macro.html" import user_link %}
 
 {% macro artist_link(artist) -%}
 <a href="{{ url_for('artist.profile', slug=artist.slug) }}" class="artist artist-{{ artist.slug|anchor }}" style="background-image:url({{ cdn('artist.icon', slug=artist.slug) }})">{{ artist.name }}</a>
@@ -32,6 +33,12 @@
   {% endif %}
               </td>
             </tr>
+  {% if artist.user %}
+            <tr>
+              <th>Managed by</th>
+              <td>{{ user_link(artist.user) }}</td>
+            </tr>
+  {% endif %}
   {% if artist.profile and artist.profile.website %}
             <tr>
               <th>Website</th>

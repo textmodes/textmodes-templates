@@ -17,6 +17,10 @@
   </style>
 {% endmacro %}
 
+{% macro crew_link(crew) -%}
+<a href="{{ url_for('crew.info', slug=crew.slug) }}" class="crew">{{ crew.name }}</a>
+{%- endmacro %}
+
 {% macro crew_profile(crew) %}
   {% if crew.profile.website %}
             <tr>

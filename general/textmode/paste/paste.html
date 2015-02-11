@@ -32,8 +32,12 @@
     <a href="{{ url_for('paste.pasted_file', key=paste.key, filename=paste.filename) }}">{{ paste.filename|upper }}</a>
     by {{ paste.user_created }}
     <select name="font" onchange="this.form.submit();" style="color:#ccc">
-      <option value="">Clone</option>
-      {% for k, v in fonts %}<option value="{{ k }}">{{ v }}</option>{% endfor %}
+      <option value="">Clone this paste using font:</option>
+{% for group, fontsets in fonts %}
+      <optgroup label="{{ group }}">
+        {% for k, v in fontsets %}<option value="{{ v }}">{{ k }}</option>{% endfor %}
+      </optgroup>
+{% endfor %}
     </select>
   </h1>
   </form>

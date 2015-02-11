@@ -1,21 +1,49 @@
 {% extends "textmode/base.html" %}
 {% from "textmode/artist/_macro.html" import artist_link %}
+{% from "textmode/auth/_macro.html" import user_link %}
+
+{% block extrastyle %}
+  {{ stylesheet('ansi') }}
+{% endblock %}
 
 {% block content %}
     <div class="wrapped">
-      <pre style="color:#fff;text-shadow:4px 4px #444">
-            _______  _______  _______    <span style="color:#5f5"> ______  __       __      </span> 
-           |   _   \|   _   \|   _   |   <span style="color:#5f5">|   _  \|__|.----|__|---.-.</span>
-           |.  |   /|.  |   /|   |___|   <span style="color:#5f5">|.  |   |  |     |  |  _  |</span>
-           |.  _   \|.  _   \|____   |   <span style="color:#5f5">|.  |   |__|__|__|  |___._|</span>
-           |:  |    |:  |    |:  |   |   <span style="color:#5f5">|:  |   |      `.___|     </span> 
-           |::.. .  |::.. .  |::.. . |   <span style="color:#5f5">|::.|   |                 </span> 
-           `-------'`-------'`-------'   <span style="color:#5f5">`--- ---'         </span>Presents:
-
-</pre>
+      <form method="post" action="">
+        <input type="hidden" name="action" value="oneliner">
+        {{ form.oneliner.csrf_token }}
+        <table id="oneliners">
+          <thead>
+            <tr>
+              <th colspan="2">Oneliners</th>
+            </tr>
+          </thead>
+          <tbody>
+{% for oneliner in recent.oneliners[::-1] %}
+            <tr>
+              <td title="Added {{ oneliner.date_created.strftime('%Y.%m.%d %H:%M') }}">{{ oneliner|safe }}</td>
+              <td>{{ user_link(oneliner.user) }}</td>
+            </tr>
+{% endfor %}
+{% if user.is_authenticated %}
+            <tr>
+              <td colspan="2">
+                {{ form.oneliner.line(autocomplete='off') }}
+                <input type="submit" value="shout">
+              </td>
+            </tr>
+  {% if form.oneliner.errors.line %}
+            <tr class="error">
+              <td>{{ form.oneliner.errors.line|join('<br>')|safe }}</td>
+              <td></td>
+            </tr>
+  {% endif %}
+{% endif %}
+          </tbody>
+        </table>
+      </form>
       <div style="width:800px;margin: 0 auto">
 {%- for colly in recent.colly %}
-        <div style="display: inline-block; width: 372px; height: 176px;margin:16px 0">
+        <div style="display: inline-block; width: 384px; height: 176px;margin:16px 0">
           <div style="width: 372px;overflow-x:hidden">
             <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">{{ colly.title|truncate(32, True) }}</a>
   {%- if colly.artists %}
