@@ -91,9 +91,19 @@
 {% endblock %}
 
 {% block content %}
-
     <div id="piece">
-      <img src="{{ cdn('.pack_file_view', name=pack.name, filename=pack_file.filename) }}">
+{% if user.is_authenticated() and user.can_manage(pack_file) %}
+      <div id="fixup">
+        <form method="post">
+          {{ form.csrf_token }}
+          {{ form.font }}
+          <input type="submit" value="save">
+        </form>
+      </div>
+{% endif %}
+      <img src="{{ cdn('.pack_file_view', name=pack.name, filename=pack_file.filename, font=pack_file.font) }}
+{%- if pack_file.font %}?{{ pack_file.font }}{% endif -%}
+        ">
     </div>
     <div id="side">
       <a href="{{ url_for('.pack', name=pack.name) }}">
@@ -187,12 +197,12 @@
     <div id="pager">
 {% set prev_pack_file=pack_file.prev %}
 {% set next_pack_file=pack_file.next %}
-    <a href="{{ url_for('.pack_file', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }}" id="prev" title="Previous piece in pack" data-preload="{{ cdn('.pack_file_view', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }}">
-        <div class="tile" style="background-image:url({{ cdn('.pack_file_preview', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }})">
+      <a href="{{ url_for('.pack_file', name=prev_pack_file.pack.name, filename=prev_pack_file.filename) }}" id="prev" title="Previous piece in pack" data-preload="{{ cdn('.pack_file_view', name=prev_pack_file.pack.name, filename=prev_pack_file.filename, font=prev_pack_file.font) }}?{% if prev_pack_file.font %}?{{ prev_pack_file.font }}{% endif %}">
+        <div class="tile" style="background-image:url({{ cdn('.pack_file_preview', name=prev_pack_file.pack.name, filename=prev_pack_file.filename, font=prev_pack_file.font) }}?{% if prev_pack_file.font %}?{{ prev_pack_file.font }}{% endif %})">
         </div>
       </a>
-      <a href="{{ url_for('.pack_file', name=next_pack_file.pack.name, filename=next_pack_file.filename) }}" id="next" title="Next piece in pack" data-preload="{{ cdn('.pack_file_view', name=next_pack_file.pack.name, filename=next_pack_file.filename) }}">
-        <div class="tile" style="background-image:url({{ cdn('.pack_file_preview', name=next_pack_file.pack.name, filename=next_pack_file.filename) }})">
+      <a href="{{ url_for('.pack_file', name=next_pack_file.pack.name, filename=next_pack_file.filename) }}" id="next" title="Next piece in pack" data-preload="{{ cdn('.pack_file_view', name=next_pack_file.pack.name, filename=next_pack_file.filename) }}?{% if next_pack_file.font %}?{{ next_pack_file.font }}{% endif %}">
+        <div class="tile" style="background-image:url({{ cdn('.pack_file_preview', name=next_pack_file.pack.name, filename=next_pack_file.filename, font=next_pack_file.font) }}?{% if next_pack_file.font %}?{{ next_pack_file.font }}{% endif %})">
         </div>
       </a>
     </div>

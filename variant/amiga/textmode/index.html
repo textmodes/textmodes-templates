@@ -6,27 +6,76 @@
   {{ stylesheet('ansi') }}
 {% endblock %}
 
-{% block content %}
-    <div class="wrapped">
+{% block menu %}
+      <table id="calls">
+        <thead>
+          <tr>
+            <th colspan="2">Recent calls</th>
+          </tr>
+        </thead>
+        <tbody>
+{% for call in recent.calls %}
+          <tr>
+            <td>{{ user_link(call.user) }}</td>
+            <td><time timestamp="{{ call.date_created.isoformat() }}">{{ call.date_created|duration }}</time></td>
+          </tr>
+{% endfor -%}
+        </tbody>
+      </table>
+      <br>
+      <table id="recent">
+        <thead>
+          <tr>
+            <th colspan="2">Recent collies</th>
+          </tr>
+        </thead>
+        <tbody>
+{% for colly in recent.colly %}
+          <tr>
+            <td><a href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.filename }}</a></td>
+            <td>{{ colly.date_created.strftime('%Y.%m.%d') }}</td>
+          </tr>
+{% endfor -%}
+        </tbody>
+      </table>
+      <br>
+      <table id="users">
+        <thead>
+          <tr>
+            <th colspan="2">New users</th>
+          </tr>
+        </thead>
+        <tbody>
+{% for profile in recent.users %}
+          <tr>
+            <td>{{ user_link(profile) }}</td>
+            <td><time timestamp="{{ profile.date_confirmed.isoformat() }}">{{ profile.date_confirmed.strftime('%Y.%m.%d') }}</time></td>
+          </tr>
+{% endfor -%}
+        </tbody>
+      </table>
+      <br> 
       <form method="post" action="">
         <input type="hidden" name="action" value="oneliner">
         {{ form.oneliner.csrf_token }}
         <table id="oneliners">
           <thead>
             <tr>
-              <th colspan="2">Oneliners</th>
+              <th>Oneliners</th>
             </tr>
           </thead>
           <tbody>
 {% for oneliner in recent.oneliners[::-1] %}
             <tr>
-              <td title="Added {{ oneliner.date_created.strftime('%Y.%m.%d %H:%M') }}">{{ oneliner|safe }}</td>
-              <td>{{ user_link(oneliner.user) }}</td>
+              <td>
+                <div style="float:right">{{ user_link(oneliner.user) }}</div>
+                <div title="Added {{ oneliner.date_created.strftime('%Y.%m.%d %H:%M') }}">{{ oneliner|safe }}</div>
+              </td>
             </tr>
 {% endfor %}
-{% if user.is_authenticated %}
+{% if user.is_authenticated() %}
             <tr>
-              <td colspan="2">
+              <td>
                 {{ form.oneliner.line(autocomplete='off') }}
                 <input type="submit" value="shout">
               </td>
@@ -37,50 +86,58 @@
               <td></td>
             </tr>
   {% endif %}
+{% else %}
+            <tr>
+              <td><a href="{{ url_for('user.login') }}">Log in</a> to shout</td>
+              <td></td>
+            </tr>
 {% endif %}
           </tbody>
         </table>
       </form>
-      <div style="width:800px;margin: 0 auto">
+{% endblock %}
+
+{% block content %}
 {%- for colly in recent.colly %}
-        <div style="display: inline-block; width: 384px; height: 176px;margin:16px 0">
-          <div style="width: 372px;overflow-x:hidden">
-            <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">{{ colly.title|truncate(32, True) }}</a>
+    <div style="display: inline-block; width: 384px; height: 176px;margin:16px 0">
+      <div style="width: 372px;overflow-x:hidden">
+        <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">{{ colly.title|truncate(32, True) }}</a>
   {%- if colly.artists %}
-            by {% for artist in colly.artists %}{{ artist_link(artist) }}{% if not loop.last %}, {% endif %}{%- endfor %}
+        by {% for artist in colly.artists %}{{ artist_link(artist) }}{% if not loop.last %}, {% endif %}{%- endfor %}
     {%- if colly.crew %} of <a href="{{ url_for('crew.info', slug=colly.crew.slug) }}" class="crew">{{ colly.crew.name }}</a>{% endif %}
   {%- endif %}
-          </div>
-          <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
-          <div class="clear"></div>
-        </div>
-{% endfor %}
-        <p>
-          <a href="{{ url_for('colly.index') }}">... or continue to the colly index</a>
-        </p>
       </div>
-      <h2>What's this?</h2>
-      <p>
-        The Amiga ASCII scene dates back to the early 1990s, seven years after
-        the release of the <a href="https://en.wikipedia.org/wiki/Amiga_1000">Commodore
-        Amiga 1000</a>. Most of the early contributers find their origins in
-        the C64 demo and warez scene. Early crews are
-        <a href="{{ url_for('crew.info', slug='art') }}">ART</a>,
-        <a href="{{ url_for('crew.info', slug='epsilon.design') }}">Epsilon Design</a> (E^D),
-        <a href="{{ url_for('crew.info', slug='upperclass') }}">Upperclass</a> (UC),
-        <a href="{{ url_for('crew.info', slug='unreal') }}">Unreal</a> (now
-        known as <a href="{{ url_for('crew.info', slug='dezign') }}">DeZign</a>).
-      </p>
-      <p>
-        Most <a href="{{ url_for('crew.index') }}">crews</a> release periodic
-        collections (or <a href="{{ url_for('colly.index') }}">collies</a>),
-        which is a single text file that contains multiple works, as opposed to
-        the <a href="http://pc.textmod.es/">IBM PC</a> art scene where the art
-        works are released as ZIP files with separate text files for each work.
-      </p>
-      <p>
-        <a href="https://github.com/textmodes/textmodes-templates/edit/master/variant/amiga/textmode/index.html">&hellip;
-          do you have anything to add/change?</a>
-      </p>
+      <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
+      <div class="clear"></div>
     </div>
+{% endfor %}
+    <p>
+      <a href="{{ url_for('colly.index') }}">... or continue to the colly index</a>
+    </p>
+  </div>
+  <div style="max-width:800px">
+    <h2>What's this?</h2>
+    <p>
+      The Amiga ASCII scene dates back to the early 1990s, seven years after
+      the release of the <a href="https://en.wikipedia.org/wiki/Amiga_1000">Commodore
+      Amiga 1000</a>. Most of the early contributers find their origins in
+      the C64 demo and warez scene. Early crews are
+      <a href="{{ url_for('crew.info', slug='art') }}">ART</a>,
+      <a href="{{ url_for('crew.info', slug='epsilon.design') }}">Epsilon Design</a> (E^D),
+      <a href="{{ url_for('crew.info', slug='upperclass') }}">Upperclass</a> (UC),
+      <a href="{{ url_for('crew.info', slug='unreal') }}">Unreal</a> (now
+      known as <a href="{{ url_for('crew.info', slug='dezign') }}">DeZign</a>).
+    </p>
+    <p>
+      Most <a href="{{ url_for('crew.index') }}">crews</a> release periodic
+      collections (or <a href="{{ url_for('colly.index') }}">collies</a>),
+      which is a single text file that contains multiple works, as opposed to
+      the <a href="http://pc.textmod.es/">IBM PC</a> art scene where the art
+      works are released as ZIP files with separate text files for each work.
+    </p>
+    <p>
+      <a href="https://github.com/textmodes/textmodes-templates/edit/master/variant/amiga/textmode/index.html">&hellip;
+        do you have anything to add/change?</a>
+    </p>
+  </div>
 {% endblock %}

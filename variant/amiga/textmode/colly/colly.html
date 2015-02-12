@@ -31,9 +31,9 @@
         <pre>{{ art.file_id_diz_html|safe }}</pre>
         <table class="full" style="margin-top:16px">
           <tr><th>Artist</th><td>
-{%- for a in colly.artists %}
-<a href="{{ url_for('artist.profile', slug=a.slug) }}">{{ a.name|upper }}</a>{% if not loop.last %}, {% endif %}
-{% endfor -%}
+{%- for artist in colly.artists -%}
+            {{ artist_link(artist) }}{% if not loop.last %}, {% endif %}
+{%- endfor -%}
           </td></tr>
           <tr><th>Title</th><td>{{ colly.title|default('No title') }}</td></tr>
           <tr><th>Date</th><td>{{ colly.date_created.strftime('%d %b %Y') }}</td></tr>

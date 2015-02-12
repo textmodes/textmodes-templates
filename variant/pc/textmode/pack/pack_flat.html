@@ -47,8 +47,8 @@
     {%- endfor -%}
   {%- endif -%}
     <li class="piece tile{% if highlight %} highlight{% endif %}{% if faint %} faint{% endif %}">
-      <a href="{{ url_for('.pack_file', name=pack.name, filename=file.filename) }}" rel="pack" data-preload="{{ cdn('.pack_file_view', name=pack.name, filename=file.filename) }}">
-        <img src="{{ cdn('.pack_file_preview', name=pack.name, filename=file.filename) }}">
+      <a href="{{ url_for('.pack_file', name=pack.name, filename=file.filename) }}" rel="pack" data-preload="{{ cdn('.pack_file_view', name=pack.name, filename=file.filename, font=file.font) }}{% if file.font %}?{{ file.font }}{% endif %}">
+        <img src="{{ cdn('.pack_file_preview', name=pack.name, filename=file.filename, font=file.font) }}">
         <label title="{{ file.filename|upper }}"><span>{{ file.filename|dosname(18) }}</span></label>
       </a>
     </li>

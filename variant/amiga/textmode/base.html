@@ -27,8 +27,14 @@
 {%- endblock %}
   </header>
 {% block main %}
+{% block before_content %}{% endblock %}
   <div id="content">
+    <aside id="menu">
+{%- block menu %}{%- endblock %}
+    </aside>
+    <div id="main">
 {%- block content %}{%- endblock %}
+    </div>
   </div>
 {% endblock %}
   {{ javascript('headroom') }}
