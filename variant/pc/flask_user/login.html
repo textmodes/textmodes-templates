@@ -1,0 +1,41 @@
+{% extends 'flask_user/public_base.html' %}
+
+{% block content %}
+{% from "flask_user/_macros.html" import render_field, render_checkbox_field, render_submit_field %}
+
+<pre>
+  _______ __                 __       
+ |   _   |__|-----.-----.   |__|-----.
+ |   |___|  |  _  |     |   |  |     |
+ |____   |__|___  |__|__|   |__|__|__|
+ |:  |   |  |_____|                   
+ |::.. . |                            
+ `-------'                            
+
+Sign in to your free textmod.es account using the form below. You need an
+account to create comments, edit data or contribute to the website. No
+account yet? <a href="{{ url_for('user.register') }}">Sign up</a> for free today!
+
+In case you lost your password, you can have it <a href="{{ url_for('user.forgot_password') }}">reset here</a>.
+
+</pre>
+
+<form action="" method="POST" class="form" role="form">
+    {{ form.hidden_tag() }}
+
+    {# Username or Email field #}
+    {{ render_field(form.username) }}
+
+    {# Password field #}
+    {{ render_field(form.password) }}
+
+    {# Remember me #}
+    {% if user_manager.enable_remember_me %}
+    {{ render_checkbox_field(login_form.remember_me, tabindex=130) }}
+    {% endif %}
+
+    {# Submit button #}
+    {{ render_submit_field(form.submit, tabindex=180) }}
+</form>
+
+{% endblock %}

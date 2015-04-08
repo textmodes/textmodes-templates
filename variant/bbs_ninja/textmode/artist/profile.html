@@ -1,0 +1,60 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+{% if user %}
+<h1>
+    <a href="/">B:</a>{#
+    #}\profile\
+    {%- if artist.user -%}
+    <img src="{{ artist.user.email | gravatar(size=16, use_ssl=1) }}">{{ artist.name }}
+    {%- else -%}
+    {{ artist.name }}
+    {%- endif -%}
+</h1>
+{% else %}
+<h1>
+    <a href="/">B:</a>{#
+    #}\<a href="/artist/">artist</a>{#
+    #}\{{ artist.name }}
+{%- if artist.tag %} ({{ artist.tag }}){% endif %}
+</h1>
+{% endif %}
+
+<h2>Participated in crews:</h2>
+  {% set crews=artist.crews_for('pc') %}
+  {% if crews %}
+    {% for crew in crews %}
+    <a href="{{ url_for('crew.info', slug=crew.slug) }}">
+      <div class="piece-crew"
+        style="background-image:url({{ url_for('crew.thumbnail', slug=crew.slug) }})">
+        <span>{{ crew.name|upper|escape }}{% if crew.tag %} ({{ crew.tag }}){% endif %}</span>
+      </div>
+    </a>
+    {% endfor %}
+  {% else %}
+  <p>None :(</p>
+  {% endif %}
+
+<div class="clearfix">&nbsp;</div>
+<h2>Featured in packs:</h2>
+{% set packs=artist.packs %}
+  {% if packs %}
+    {% set prev = 0 %}
+    {% for pack in packs %}
+    {% if prev != pack.year %}
+    {% set prev = pack.year %}
+    <div class="clearfix"></div>
+    <h3 id="{{ pack.year }}">{{ pack.year }}</h3>
+    {% endif %}
+    <a href="{{ url_for('pack.pack', name=pack.name) }}?artist={{ artist.slug|urlencode }}">
+      <div class="piece"
+        style="background-image:url({{ cdn('pack.thumbnail', name=pack.name, variant='tile') }})">
+        <span>{{ pack.name|escape|upper }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  {% else %}
+  <p>None :(</p>
+  {% endif %}
+
+{% endblock %}

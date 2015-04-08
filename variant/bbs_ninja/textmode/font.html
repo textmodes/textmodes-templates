@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>font glyphs</h1>
+
+<table>
+{% for y in range(16) %}
+  <tr>
+  {% if y == 0 %}
+    <td> </td>
+    {% for x in range(16) %}
+    <th>{{ '0x%02x' | format(x) }}</th>
+    {% endfor %}
+  </tr>
+  <tr>
+  {% endif %}
+    <th>{{ '0x%02x' | format(y * 16) }}</th>
+    {% for x in range(16) %}
+    {% set c = (x + (y * 16)) %}
+    <td>
+        {{ '%02x' | format(c) }}
+        &#{{ c }};
+    </td>
+    {% endfor %}
+  </tr>
+{% endfor %}
+</table>
+
+{% endblock %}

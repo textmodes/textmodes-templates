@@ -8,13 +8,16 @@
   <meta name="description" content=""/>
   <meta name="author" content="Wijnand Modderman-Lenstra"/>
   <meta name="copyright" content=""/>
+{% if not request.is_xhr %}
   <link rel="icon" type="image/png" href="/static/image/pc/favicon.png">
   {{ stylesheet('normalize') }}
   {{ stylesheet('pc/main', cdn=False) }}
 {%- block scenestyle %}{% endblock %}
 {%- block extrastyle %}{% endblock %}
+{% endif %}
 </head>
 <body>
+{% if not request.is_xhr %}
   <header class="headroom">
 {%- block header %}
 {%- block search %}
@@ -27,11 +30,24 @@
 T:\<a href="http://textmod.es/">EXTMODES</a>\<a href="/">PC</a>\{%- block path -%}{%- endblock -%}&gt; {%- block extrapath %}{%- endblock %}
 {%- endblock %}
   </header>
+  {% with messages = get_flashed_messages() -%}
+    {% if messages -%}
+  <div id="flash">
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+    {% endif -%}
+  {% endwith -%}
+{% endif %}
 {% block main %}
   <div id="content">
 {%- block content %}{%- endblock %}
   </div>
 {% endblock %}
+{% if not request.is_xhr %}
   {{ javascript('jquery') }}
   {{ javascript('retina') }}
   {{ javascript('headroom') }}
@@ -41,5 +57,7 @@ T:\<a href="http://textmod.es/">EXTMODES</a>\<a href="/">PC</a>\{%- block path -
   {{ javascript('imagesloaded.pkgd') }}
 {% block extrascript %}{% endblock %}
   <script>$('header').headroom();</script>
+{% include "analytics.html" %}
+{% endif %}
 </body>
 </html>

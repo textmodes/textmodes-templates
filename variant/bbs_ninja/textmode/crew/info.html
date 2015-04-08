@@ -1,0 +1,39 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}{{ crew.name|title }} Crew{% endblock %}
+
+{% block content %}
+  <h1>
+    <a href="/">B:</a>\<a href="{{ url_for('.index') }}">CREW</a>\{{ crew.name|title|escape }}
+  </h1>
+
+  <p>
+    <h2>Featuring</h2>
+    <div style="max-width: 960px">
+      <div class="piece-crew"
+        style="background-image:url({{ url_for('.thumbnail', slug=crew.slug) }})">
+      </div>
+      <div style="padding-left: 32px">
+{% for artist in crew.artists -%}
+      <a href="{{ url_for('artist.profile', slug=artist.slug) }}">{{ artist.name }}</a>
+      {%- if not loop.last %}, {% endif -%}
+{% endfor %}
+      </div>
+    </div>
+
+    <div class="clearfix"> </div>
+
+    <h2>Packs</h2>
+    <div id="pieces">
+{% for pack in crew.packs.order_by('year', 'name').all()|reverse %}
+      <a href="{{ url_for('pack.pack', name=pack.name) }}">
+        <div class="piece"
+        style="background-image:url({{ cdn('pack.thumbnail', name=pack.name, variant='tile' )}})"
+          >
+          <span>{{ pack.name|upper|escape }}</span>
+        </div>
+      </a>
+{% endfor %}
+    </div>
+  </p>
+{% endblock %}

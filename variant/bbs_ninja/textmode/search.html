@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% if q %} &quot;{{ q|escape }}&quot;{% endif %}{% endblock %}
+
+{% block content %}
+<h1>Search</h1>
+<p>
+  <form method="get" action="/search/">
+  Find
+  <input type="text" id="q" name="q" value="{{ q }}">
+  in
+  <select name="t">
+  {%- for value, name in doc_types %}
+    <option value="{{ value }}"
+    {%- if value == doc_type %} selected{% endif -%}
+    >{{ name }}</option>
+  {% endfor -%}
+  </select>
+  <input type="submit" value="CLiCKY!">
+  </form>
+</p>
+
+{% if q %}
+
+{%- set years = results.facets['packfile.pack.year'] -%}
+{%- set crews = results.facets['packfile.crew.name.name_exact'] -%}
+{%- if year or crew or (years and years.terms) or (crews and crews.terms) -%}
+<h2>Refine search</h2>
+
+<div>
+  We have {{ results.total }} search results, you can refine your search
+</div>
+
+<table>
+{% if year or (years and years.terms) %}
+  {% set terms = years.terms %}
+<tr>
+  <td nowrap="nowrap">by year</td>
+  <td> </td>
+  <td>
+  {%- if year %}
+    <strong>{{ year }}</strong>
+    (<a href="?q={{ q }}&t={{ doc_type }}&crew={{ crew }}">clear filter</a>)
+  {%- else %}
+    {% for term in terms %}
+    <a href="?q={{ q }}&t={{ doc_type }}&year={{ term.term }}&crew={{ crew }}">{{ term.term }}</a>
+    ({{ term.count }})
+    {%- if not loop.last %},{% endif %}
+    {%- endfor -%}
+  {%- endif -%}
+  </td>
+</tr>
+{%- endif %}
+{% if crews and crews.terms %}
+  {% set terms = crews.terms %}
+<tr>
+  <td nowrap="nowrap">by crew</td>
+  <td> </td>
+  <td>
+  {% if crew %}
+    <strong>{{ crew|title }}</strong>
+    (<a href="?q={{ q }}&t={{ doc_type }}&year={{ year }}">clear filter</a>)
+  {% else %}
+    {% for term in terms %}
+    <a href="?q={{ q }}&t={{ doc_type }}&year={{ year }}&crew={{ term.term }}">{{ term.term|title }}</a>
+    ({{ term.count }})
+    {%- if not loop.last %},{% endif %}
+    {%- endfor -%}
+  {%- endif -%}
+  </td>
+</tr>
+{%- endif %}
+</table>
+{% endif %}
+
+<h2>Results</h2>
+
+<div id="search-results">
+  {% if results.items %}
+    {% if results.pages > 1 %}
+    {{ search_pager(results) }}
+    {% endif %}
+    {% for hit in results.items %}
+        {% if hit._type == 'artist' %}
+        <a href="{{ url_for_artist(long(hit._id)) }}">
+            <div class="piece-artist"
+                style="background-image:url({{ img_for_artist(long(hit._id)) }})">
+                <span>{{ hit.artist.name|title }}</span>
+            </div>
+        </a>
+        {% elif hit._type == 'crew' %}
+        <a href="{{ url_for_crew(hit._id) }}">
+            <div class="piece-crew"
+                style="background-image:url({{ img_for_crew(long(hit._id)) }})">
+                <span>{{ hit.crew.name|title }}</span>
+            </div>
+        </a>
+        {% elif hit._type == 'pack' %}
+        <a href="{{ url_for_pack(long(hit._id)) }}">
+            <div class="piece-pack"
+                style="background-image:url({{ img_for_pack(long(hit._id)) }})">
+                <span>{{ hit.pack.name|upper }}</span>
+            </div>
+        </a>
+        {% elif hit._type == 'packfile' %}
+        <a href="{{ url_for_pack_file(long(hit._id)) }}">
+            {% if hit.highlight.plain_text %}
+            <div class="piece-mask"
+                style="background-image:url({{ img_for_pack_file(long(hit._id)) }});{{ css_search_mask(hit.plain_text, hit.highlight.plain_text[0]) }}">
+                <span class="blur"> </span>
+                <span class="blur"> </span>
+                <span class="blur"> </span>
+                <span class="match"> </span>
+                <span class="match"> </span>
+                <span class="blur"> </span>
+                <span class="blur"> </span>
+                <span class="blur"> </span>
+                <span class="link">{{ hit.name|upper }}
+                  {%- if hit.artist %} BY {% for artist in hit.artist -%}
+                  {{ artist.name|upper }}
+                  {%- if not loop.last %}&amp;{% endif %}
+                  {%- endfor -%}
+                  {%- endif %} ON {{ hit.pack.name|upper }}
+                  </span>
+            </div>
+            {% else %}
+            <div class="piece"
+                style="background-image:url({{ img_for_pack_file(long(hit._id)) }})">
+                <span>{{ hit.name|upper }}</span>
+            </div>
+            {% endif %}
+        </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if results.items|length >= results.per_page %}
+    <div class="clearfix"> </div>
+    {{ search_pager(results) }}
+    {% endif %}
+
+  {% else %}
+    <p>Nothing matched your query :(</p>
+  {% endif %}
+{% endif %}
+</div>
+
+{% endblock %}
+
+{% macro search_pager(results) %}
+    <div class="pager">
+    {% if results.has_prev %}
+      <a href="{{ url_for('meta.search', page=results.prev_page, q=q,
+        t=doc_type, year=year, crew=crew) }}">&#xae; back</a>
+    {% else %}
+      &#xae; back
+    {% endif %}
+    {%- for page in results.iter_pages() %}
+      {% if page %}
+        {% if page != results.page %}
+          <a href="{{ url_for('meta.search', page=page, q=q,
+            t=doc_type, year=year, crew=crew) }}">{{ page }}</a>
+        {% else %}
+          <strong>{{ page }}</strong>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {%- endfor %}
+    {% if results.has_next %}
+      <a href="{{ url_for('meta.search', page=results.next_page, q=q,
+        t=doc_type, year=year, crew=crew )}}">next &#xaf;</a>
+    {% else %}
+      next &#xaf;
+    {% endif %}
+    </div>
+{% endmacro %}
+

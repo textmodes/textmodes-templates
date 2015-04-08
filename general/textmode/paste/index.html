@@ -68,7 +68,7 @@
     <ul class="list">
       {% for paste in current_user.pastes %}
       <li>
-        <a href="{{ url_for('.pasted', key=paste.key) }}">{{ paste.filename }}</a>
+        <a href="{{ url_for('.pasted', key=paste.key) }}">{{ paste.filename|dosname(18) }}</a>
         on {{ paste.date_created.strftime('%Y.%m.%d %H:%M') }}
         {% if not paste.is_public %}(private){% endif %}
       </li>
@@ -78,5 +78,18 @@
     <p><em>No pastes yet!</em></p>
     {% endif %}
   {% endif %}
+
+    <h2>Recent public pastes</h2>
+    <ul class="list">
+    {% for paste in recent %}
+      <li>
+        <a href="{{ url_for('.pasted', key=paste.key) }}">{{ paste.filename|dosname(18) }}</a>
+        on {{ paste.date_created.strftime('%Y.%m.%d %H:%M') }}
+      {% if paste.user %}
+        by <a href="{{ url_for('auth.profile', username=paste.user.username) }}">{{ paste.user.username }}</a>
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
   </div>
 {% endblock %}

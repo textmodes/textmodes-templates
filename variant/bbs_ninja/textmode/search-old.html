@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% if q %} results{% endif %}{% endblock %}
+
+{% block content %}
+<h1>Search</h1>
+
+<p>What can I do you for?</p>
+
+<form method="get" action="/search/">
+<table class="full">
+<tr>
+  <td>Find</td>
+  <td>
+    <input type="text" id="q" name="q" value="{{ q }}" class="full">
+  </td>
+</tr>
+<tr>
+  <td>in</td>
+  <td>
+    <input type="checkbox" name="c"> crews
+    <input type="checkbox" name="p"> packs
+    <input type="checkbox" name="f"> pieces
+    <input type="submit" value="CLiCKY!" class="btn">
+  </td>
+</tr>
+</table>
+</form>
+
+{% if q %}
+<h2>Results</h2>
+<p>
+  We found a total of
+  <a href="#crews">{{ crews.total }} crew{{ crews.total|pluralize }}</a>,
+  <a href="#packs">{{ packs.total }} pack{{ packs.total|pluralize }}</a> and
+  <a href="#pieces">{{ files.total }} piece{{ files.total|pluralize }}</a>
+  that matched your query.
+</p>
+{% endif %}
+
+{% if crews and crews.total %}
+<h3 id="crews">Crews ({{ crews.total }} hits)</h3>
+  {% if crews.total > 100 %}
+  <p>Please refine your search</p>
+  {% else %}
+
+    {{ crew_pager(crews) }}
+    {% for crew in crews.items %}
+  <a href="{{ url_for_crew(crew) }}">
+    <div class="piece-crew"
+      style="background-image: url({{ img_for_crew(crew) }})">
+      <span>{{ crew.name|upper }}</span>
+    </div>
+  </a>
+    {% endfor %}
+
+  <div class="clearfix">&nbsp;</div>
+  {% endif %}
+{% endif %}
+
+{% if packs and packs.total %}
+<h3 id="packs">Packs ({{ packs.total }} hits)</h3>
+  {% if packs.total > 100 %}
+  <p>Please refine your search</p>
+  {% else %}
+
+    {{ pack_pager(packs) }}
+    {% for pack in packs.items %}
+  <a href="{{ url_for_pack(pack) }}">
+    <div class="piece"
+      style="background-image: url({{ img_for_pack(pack) }})">
+      <span>{{ pack.name|upper }}</span>
+    </div>
+  </a>
+    {% endfor %}
+
+  <div class="clearfix">&nbsp;</div>
+  {% endif %}
+{% endif %}
+
+{% if files and files.total %}
+<h3 id="pieces">Pieces ({{ files.total }} hits)</h3>
+  {% if files.total > 200 %}
+  <p>Please refine your search</p>
+  {% else %}
+
+    {{ file_pager(files) }}
+    {% for pack_file in files.items %}
+  <a href="{{ url_for_pack_file(pack_file) }}">
+    <div class="piece"
+      style="background-image: url({{ img_for_pack_file(pack_file) }})">
+      <span>{{ pack_file.filename|upper }}</span>
+    </div>
+  </a>
+    {% endfor %}
+
+  <div class="clearfix">&nbsp;</div>
+  {% endif %}
+{% endif %}
+
+{% endblock %}
+
+{% macro crew_pager(p) %}
+<div class="pager">
+{% if p.has_prev %}
+  <a href="{{ url_for('meta.search', q=q, cp=p.prev_num, fp=fp, pp=pp) }}#crews">&#xae; back</a>
+{% else %}
+  &#xae; back
+{% endif %}
+{% for page in p.iter_pages() %}
+  {% if page %}
+    {% if page != p.page %}
+      <a href="{{ url_for('meta.search', q=q, cp=page, fp=fp, pp=pp) }}#crews">{{ page }}</a>
+    {% else %}
+      {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if p.has_next %}
+  <a href="{{ url_for('meta.search', q=q, cp=p.next_num, fp=fp, pp=pp) }}#crews">next &#xaf;</a>
+{% else %}
+  next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}
+
+{% macro pack_pager(p) %}
+<div class="pager">
+{% if p.has_prev %}
+  <a href="{{ url_for('meta.search', q=q, cp=cp, fp=fp, pp=p.prev_num) }}#packs">&#xae; back</a>
+{% else %}
+  &#xae; back
+{% endif %}
+{% for page in p.iter_pages() %}
+  {% if page %}
+    {% if page != p.page %}
+      <a href="{{ url_for('meta.search', q=q, cp=cp, pp=page, fp=fp) }}#packs">{{ page }}</a>
+    {% else %}
+      {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if p.has_next %}
+  <a href="{{ url_for('meta.search', q=q, cp=cp, pp=p.next_num, fp=fp) }}#packs">next &#xaf;</a>
+{% else %}
+  next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}
+
+{% macro file_pager(p) %}
+<div class="pager">
+{% if p.has_prev %}
+  <a href="{{ url_for('meta.search', q=q, cp=cp, fp=p.prev_num, pp=pp) }}#pieces">&#xae; back</a>
+{% else %}
+  &#xae; back
+{% endif %}
+{% for page in p.iter_pages() %}
+  {% if page %}
+    {% if page != p.page %}
+      <a href="{{ url_for('meta.search', q=q, cp=cp, fp=page, pp=pp) }}#pieces">{{ page }}</a>
+    {% else %}
+      {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if p.has_next %}
+  <a href="{{ url_for('meta.search', q=q, cp=cp, fp=p.next_num, pp=pp) }}#pieces">next &#xaf;</a>
+{% else %}
+  next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}
+
+{% block script %}
+<script>
+(function($) {
+  $(document).ready(function() {
+    $('#q').focus();
+  });
+})(jQuery);
+</script>
+{% endblock %}

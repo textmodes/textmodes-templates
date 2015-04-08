@@ -1,8 +1,8 @@
 {% extends "textmode/base.html" %}
 
-{% block title %}B:\NINJA\{{ year }}\&gt;{% endblock %}
+{% block title %}{{ year }} &middot; PC.TEXTMOD.ES{% endblock %}
 
-{% block path %}<a href="../" id="year" data-year="{{ years|join(",") }}">{{ year }}</a>{% endblock %}
+{% block path %}<a href="{{ url_for('.index') }}">PACK</a>\{{ year }}{% endblock %}
 
 {% block extrastyle %}
   <link rel="stylesheet" href="/static/css/dojo.css">

@@ -1,0 +1,13 @@
+{% extends "textmode/admin/base.html" %}
+{% from "textmode/admin/_macros.html" import render_field, render_submit_field %}
+
+{% block content %}
+<h1>{{ compo.name }} - Adding a social media profile</h1>
+<form method="post" action="{{ url_for('.admin_compo_add_social', compo_id=compo.id) }}" novalidate formnovalidate class="form" role="form">
+  {{ form.hidden_tag() }}
+  {{ render_field(form.site) }}
+  {{ render_field(form.profile) }}
+  {{ render_submit_field(form.submit) }}
+</form>
+{% endwith %}
+{% endform %}

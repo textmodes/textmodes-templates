@@ -1,14 +1,15 @@
 {% extends "textmode/base.html" %}
 
+{% from "textmode/artist/_macro.html" import artist_link %}
+
 {% block content %}
-    <h2 class="cf">{{ totals.colly }} <a href="{{ site_url_for('amiga', 'site.index') }}" class="cd">Amiga</a> collies</h2>
+    <h2 class="cf">{{ stats.totals.amiga_collies }} <a href="{{ site_url_for('amiga', 'site.index') }}" class="cd">Amiga</a> collies</h2>
     <div class="recent">Recently added:</div>
     <ul class="recent">
-    {% for colly in recent.colly %}
+    {% for colly in stats.recent.amiga_collies %}
       <li class="c8">
         <a href="{{ site_url_for('amiga', 'colly.show', name=colly.name) }}">{{ colly.title }}</a>
-        by {% for artist in colly.artists %}
-        <a href="{{ site_url_for('amiga', 'artist.profile', slug=artist.slug) }}" class="artist">{{ artist.name|title }}</a>
+        by {% for artist in colly.artists %}{{ artist_link(artist, 'amiga') }}
         {%- if not loop.last %}, {% endif %}
         {% if colly.crew %}
         of <a href="{{ site_url_for('amiga', 'crew.info', slug=colly.crew.slug) }}" class="crew">{{ colly.crew.name }}</a>
@@ -22,12 +23,12 @@
     <div class="clear"><br></div>
 
     <h2 class="cf">
-      {{ totals.packs }} <a href="{{ site_url_for('pc', 'site.index') }}" class="cd">IBM PC</a> packs
-      <span class="c7">with</span> {{ totals.piece }} <span class="c7">pieces</span>
+      {{ stats.totals.pc_packs }} <a href="{{ site_url_for('pc', 'site.index') }}" class="cd">IBM PC</a> packs
+      <span class="c7">with</span> {{ stats.totals.pc_pack_files }} <span class="c7">pieces</span>
     </h2>
     <div class="recent">Recently added:</div>
     <ul class="recent">
-    {% for pack in recent.packs %}
+    {% for pack in stats.recent.pc_packs %}
       <li class="c8">
         <a href="{{ site_url_for('pc', 'pack.pack', name=pack.name) }}" class="pack">{{ pack.name|upper }}</a>
         {% if pack.crews %}
@@ -41,15 +42,17 @@
     {% endfor %}
     </ul>
 
+{#
+
     <div class="clear"><br></div>
 
     <h2 class="cf">
-      {{ totals.release }} <a href="{{ site_url_for('c64', 'site.index') }}" class="cd">Commodore 64</a> PETSCII releases
+      {{ stats.totals.c64_release }} <a href="{{ site_url_for('c64', 'site.index') }}" class="cd">Commodore 64</a> PETSCII releases
       <span class="c9">Expermimental!</span>
     </h2>
     <div class="recent">Recently added:</div>
     <ul class="recent">
-    {% for release in recent.release %}
+    {% for release in stats.recent.c64_releases %}
       <li class="c8">
         <a href="{{ site_url_for('c64', 'petscii.release', release_name=release.name) }}" class="pack">{{ release.name }}</a>
         on <span class="c7">{{ release.date_created.strftime('%Y.%m.%d') }}</span>
@@ -57,12 +60,14 @@
     {% endfor %}
     </ul>
 
+#}
+
     <div class="clear"><br></div>
 
     <h2 class="cf">Latest news</h2>
     <div class="recent">Recently added:</div>
     <ul class="recent">
-      {% for page in recent.news %}
+      {% for page in stats.recent.news %}
       <li class="c8">
         <a href="{{ url_for('news.article', page=page.path) }}">{{ page.title }}</a>
         on <span class="c7">{{ page.meta.published.strftime('%Y.%m.%d') }}</span>

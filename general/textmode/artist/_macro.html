@@ -1,15 +1,15 @@
 {% from "textmode/_macro.html" import social_link %}
 {% from "textmode/auth/_macro.html" import user_link %}
 
-{% macro artist_link(artist) -%}
-<a href="{{ url_for('artist.profile', slug=artist.slug) }}" class="artist artist-{{ artist.slug|anchor }}" style="background-image:url({{ cdn('artist.icon', slug=artist.slug) }})">{{ artist.name }}</a>
+{% macro artist_link(artist, variant=None) -%}
+<a href="{{ site_url_for(variant, 'artist.profile', slug=artist.slug) }}" class="artist artist-{{ artist.slug|anchor }}" style="background-image:url({{ artist_icon(artist) }})">{{ artist.name }}</a>
 {%- endmacro %}
 
-{% macro artist_profile(artist, variant) %}
+{% macro artist_profile(artist, variant, form=None) %}
             <tr>
               <th>Artist</th>
               <td>
-  {% if artist.profile and artist.profile.real_name and artist.profile.show_real_name and artist.profile.real_name != artist.name %}
+  {% if not form and artist.profile and artist.profile.real_name and artist.profile.show_real_name and artist.profile.real_name != artist.name %}
                 {{ artist.profile.real_name|encode('unidecode') }}
                 <span class="c8">
                   (AKA {{ artist.name }}
@@ -39,13 +39,73 @@
               <td>{{ user_link(artist.user) }}</td>
             </tr>
   {% endif %}
-  {% if artist.profile and artist.profile.website %}
+  {% if form %}
             <tr>
-              <th>Website</th>
+              <th>Public profile</th>
+              <td><a href="{{ url_for('.profile', slug=artist.slug, guest=1) }}">Show public profile</a></td>
+            </tr>
+            <tr>
+              <th>{{ form.real_name.label }}</th>
+              <td>{{ form.real_name(size=60) }}</td>
+            </tr>
+    {% if form.errors.real_name %}
+            <tr class="error">
+              <th></th>
+              <td>{{ form.errors.real_name|join('<br>')|safe }}</td>
+            </tr>
+    {% endif %}
+            <tr>
+              <th>{{ form.show_real_name.label }}</th>
               <td>
-                <a href="{{ artist.profile.website }}">{{ artist.profile.website }}</a>
+                {{ form.show_real_name }}
+                make this visible to all visitors
               </td>
             </tr>
+  {% endif -%}
+            <tr>
+              <th>Country</th>
+  {% if form %}
+              <td>
+                {{ form.country }}
+              </td>
+  {% else %}
+    {% if artist.profile and artist.profile.country %}
+              <td>
+                <img src="/static/image/icon/country/{{ artist.profile.country|lower }}.png" alt="{{ artist.profile.country }}" class="country">
+                {{ artist.profile.country_name }}
+                <span class="c8">({{ artist.profile.country }})</span>
+              </td>
+    {% else %}
+              <td>Not specified</td>
+    {% endif %}
+  {% endif %}
+            </tr>
+  {% if form -%}
+            <tr>
+              <th>{{ form.show_country.label }}</th>
+              <td>
+                {{ form.show_country }}
+                make this visible to all visitors
+              </td>
+            </tr>
+  {% endif -%}
+  {% if form or (artist.profile and artist.profile.website) %}
+            <tr{% if form and form.errors.website %} class="error"{% endif %}>
+              <th>Website</th>
+              <td>
+    {% if form -%}
+                {{ form.website(size=60) }}
+    {% else -%}
+                <a href="{{ artist.profile.website }}">{{ artist.profile.website }}</a>
+    {% endif -%}
+              </td>
+            </tr>
+    {% if form and form.errors.website %}
+            <tr class="error">
+              <th></th>
+              <td>{% for e in form.errors.website %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td>
+            </tr>
+    {% endif %}
   {% endif %}
             <tr>
               <th>Crew participation</th>
@@ -58,18 +118,6 @@
               </td>
   {% else %}
               <td>None</td>
-  {% endif %}
-            </tr>
-            <tr>
-              <th>Country</th>
-  {% if artist.profile and artist.profile.country %}
-              <td>
-                <img src="/static/image/icon/country/{{ artist.profile.country|lower }}.png" alt="{{ artist.profile.country }}" class="country">
-                {{ artist.profile.country_name }}
-                <span class="c8">({{ artist.profile.country }})</span>
-              </td>
-  {% else %}
-              <td>Not specified</td>
   {% endif %}
             </tr>
   {% if variant == 'amiga' %}
@@ -97,17 +145,49 @@
     {% endif %}
   {% endif %}
   {% if artist.social.count() > 0 %}
-          <tr>
-            <th>Social media</th>
-            <td>
+            <tr>
+              <th>Social media</th>
+              <td>
     {% for social in artist.social %}{{ social_link(social, variant) }}{% endfor %}
-            </td>
+              </td>
+            </tr>
   {% endif %}
-  {% if artist.profile and artist.profile.bio %}
+  {% if form or (artist.profile and artist.profile.bio) %}
             <tr>
               <th>Biography</th>
+    {% if form %}
+              <td>
+                {{ form.bio(cols=60, rows=10) }}
+                <br>
+                <a href="{{ site_url_for('general', 'docs.file', filename='markdown') }}">Markdown</a> supported
+              </td>
+    {% elif artist.profile and artist.profile.bio %}
               <td>{{ artist.profile.bio|encode('markdown') }}</td>
+    {% else %}
               <td>Not specified</td>
+    {% endif %}
+            </tr>
+  {% endif %}
+  {% if form %}
+            <tr>
+              <th></th>
+              <td>{{ form.submit }}</td>
             </tr>
   {% endif %}
 {% endmacro %}
+
+{% macro artist_icon(artist) -%}
+{%- if artist.profile and artist.profile.picture_hash -%}
+{{ cdn('artist.profile_picture', slug=artist.slug, hash=artist.profile.picture_hash, variant='icon') }}
+{%- else -%}
+{{ cdn('artist.icon', slug=artist.slug) }}
+{%- endif -%}
+{%- endmacro %}
+
+{% macro artist_picture(artist) -%}
+{%- if artist.profile and artist.profile.picture_hash -%}
+{{ cdn('artist.profile_picture', slug=artist.slug, hash=artist.profile.picture_hash) }}
+{%- else -%}
+{{ cdn('artist.thumbnail', slug=artist.slug) }}
+{%- endif -%}
+{%- endmacro %}

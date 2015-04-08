@@ -3,18 +3,15 @@
 
 {% block content %}
     <div class="wrapped">
+      <div style="text-align:center">
+        <img src="http://bbs.ninja/file/img/zo-banner.jpg" alt="BBS Ninja">
+      </div>
       <pre class="lightred" "text-shadow:4px 4px #444">
-         ______  __       __       
-  BBS . |   _  \|__|.----|__|---.-.
-        |.  |   |  |     |  |  _  |
-        |.  |   |__|__|__|  |___._|
-        |:  |   |      `.___|      
-        |::.|   |                  
-        `--- ---'         Presents:
+Presents:
 </pre>
       <h2>Recent releases</h2>
       <div class="full">
-      {% for release in recent.release %}
+      {% for release in stats.recent.c64_releases %}
         <h2>
           <a href="{{ url_for('petscii.release', release_name=release.name) }}">{{ release.name }}</a>
           on {{ release.date_created.strftime('%Y.%m.%d') }}

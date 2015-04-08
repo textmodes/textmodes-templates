@@ -1,4 +1,4 @@
-{% extends "textmode/base.html" %}
+{% extends "textmode/base_with_menu.html" %}
 {% from "textmode/artist/_macro.html" import artist_link %}
 {% from "textmode/crew/_macro.html" import artist_thumbnails, crew_profile %}
 
@@ -14,30 +14,12 @@
 {% endblock %}
 
 {% block content %}
-    <div id="bannerwrapper">
-      <div id="bannertop">
-        <pre>ohai</pre>
-      </div>
-    </div>
-    <div class="full">
-      <div style="margin-left:380px">
+      <div class="right">
         <table class="profile">
           <tbody>
 {{ crew_profile(crew) }}
           </tbody>
         </table>
-      </div>
-      <div class="clear"></div>
-      <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">
-        <pre style="margin-left:32px"> _______ _______ ___     ___   ___ ___ 
-|   _   |   _   |   |   |   | |   Y   |
-|.  |___|.  |   |.  |   |.  | |   |   |
-|.  |___|.  |   |.  |___|.  |__\_   _/ 
-|:  |   |:  |   |:  |   |:  |   |:  |  
-|::.. . |::.. . |::.. . |::.. . |::.|  
-`-------`-------`-------`-------`---'  </pre>
-      </div>
-      <div style="margin-left:380px">
 {% for colly in crew.collies.order_by('date_created DESC') %}
         <div style="display: inline-block; width: 372px; height: 176px; margin: 16px 0">
           <div style="width:372px; overflow-x: hidden">
@@ -45,9 +27,10 @@
             by
             {% for artist in colly.artists %}{{ artist_link(artist) }}{%- if not loop.last %}, {% endif %}{% endfor %}
           </div>
-          <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
+          <a href="{{ url_for('colly.show', name=colly.name) }}">
+            <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
+          </a>
         </div>
   {% endfor %}
-      </div>
     </div>
 {% endblock %}

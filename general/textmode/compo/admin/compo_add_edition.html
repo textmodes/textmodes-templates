@@ -1,0 +1,18 @@
+{% extends "textmode/admin/base.html" %}
+{% from "textmode/admin/_macros.html" import render_field, render_submit_field %}
+
+{% block content %}
+<h1>{{ compo.name }} - Adding an edition</h1>
+<form method="post" action="{{ url_for('.admin_compo_add_edition', compo_id=compo.id) }}" novalidate formnovalidate class="form" role="form">
+  {{ form.hidden_tag() }}
+  {{ render_field(form.year) }}
+  {{ render_field(form.date_start) }}
+  {{ render_field(form.date_end) }}
+  {{ render_field(form.website) }}
+  {{ render_field(form.country) }}
+  {{ render_field(form.city) }}
+  {{ render_field(form.about) }}
+  {{ render_submit_field(form.submit) }}
+</form>
+{% endwith %}
+{% endblock %}

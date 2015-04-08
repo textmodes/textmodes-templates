@@ -1,3 +1,28 @@
+{% macro view_release(release) %}
+{% for archive in release.archive %}
+{{ view_archive(archive, release) }}
+{% endfor %}
+{% for prg in release.prg %}
+{{ view_prg(prg, release) }}
+{% endfor %}
+{% endmacro %}
+
+{% macro view_archive(archive, release) %}
+{% for image in archive.image %}
+{{ view_image(image, release) }}
+{% endfor %}
+{% endmacro %}
+
+{% macro view_image(image, release) %}
+{% for prg in image.prg %}
+{{ view_prg(prg, release) }}
+{% endfor %}
+{% endmacro %}
+
+{% macro view_prg(prg, release) %}
+        <img class="screen" src="{{ url_for('petscii.prg_image', release_name=release.name, filename=prg.filename) }}" alt="{{ release.name }}" style="width:352px;height:232px">
+{% endmacro %}
+
 {% macro disk_release(release) %}
       <table class="disk">
 {% for archive in release.archive %}
@@ -103,6 +128,15 @@
           <td><pre>&quot;<a href="{{ url_for('petscii.prg', release_name=release.name, filename=prg.filename) }}">{{ prg.name[:16].ljust(16) }}</a>&quot;</pre></td>
           <td>prg&nbsp;</td>
         </tr>
+        <tr>
+          <td></td>
+          <td>
+            <a href="{{ url_for('petscii.prg', release_name=release.name, filename=prg.filename) }}">
+              <img class="screen" src="{{ url_for('petscii.prg_image', release_name=release.name, filename=prg.filename) }}" alt="{{ release.name }}" style="width:288px">
+            </a>
+          </td>
+          <td></td>
+        </tr>
 {% endmacro %}
 
 {% macro disk_row_seq(seq, release) %}
@@ -110,5 +144,14 @@
           <td>42</td>
           <td><pre>&quot;<a href="{{ url_for('petscii.seq', release_name=release.name, filename=seq.filename) }}">{{ seq.name[:16].ljust(16) }}</a>&quot;</pre></td>
           <td>seq&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <a href="{{ url_for('petscii.seq', release_name=release.name, filename=seq.filename) }}">
+              <img class="screen" src="{{ url_for('petscii.seq_image', release_name=release.name, filename=seq.filename) }}" alt="{{ release.name }}" style="width:288px">
+            </a>
+          </td>
+          <td></td>
         </tr>
 {% endmacro %}

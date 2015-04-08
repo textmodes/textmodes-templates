@@ -24,7 +24,17 @@
 
 {% block content %}
     <div class="wrapped">
-      <pre id="colly"{% if font %} style="font-family: '{{ font }}'"{% endif %}>{{ art.art_html|safe }}</pre>
+{% if user.is_authenticated() and user.can_manage(colly) %}
+      <div id="fixup">
+        <form method="post">
+          <input type="hidden" name="action" value="font">
+          {{ font_form.csrf_token }}
+          {{ font_form.font }}
+          <input type="submit" value="save">
+        </form>
+      </div>
+{% endif %}
+      <pre id="colly"{% if font %} class="{{ font }}"{% endif %}>{{ art.art_html|safe }}</pre'>
       {{ comments_for(colly, comment_form, user) }}
       </div>
       <div id="side">
@@ -38,6 +48,7 @@
           <tr><th>Title</th><td>{{ colly.title|default('No title') }}</td></tr>
           <tr><th>Date</th><td>{{ colly.date_created.strftime('%d %b %Y') }}</td></tr>
           <tr><th>Views</th><td>{{ colly.views }}</td></tr>
+{#
           <tr><th>Font</th><td>
             <select id="font">
               <optgroup label="font">
@@ -65,15 +76,16 @@
               </optgroup>
             </select>
           </td></tr>
+#}
           <tr>
             <th>Download</th>
             <td><a href="{{ url_for('.download', name=colly.name, filename=colly.filename) }}">{{ colly.filename }}</a></td>
           </tr>
           <tr><th>View</th><td><a href="http://www.asciiarena.com/info_release.php?filename={{ colly.filename|encode('utf-8')|encode('base64') }}">on ASCII Arena</a></td></tr>
         </table>
-{% if user.is_authenticated and user.can_manage(colly) %}
-        <pre>{{ user }}</pre>
+{% if user.is_authenticated() and user.can_manage(colly) %}
         <h2 style="color:#f55">Admin area</h2>
+        <p>Soon! ^_^</p>
 {% endif %}
       </div>
       <div id="mask"></div>

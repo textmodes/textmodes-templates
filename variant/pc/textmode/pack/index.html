@@ -1,0 +1,61 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}PACKS &middot; PC.TEXTMOD.ES{% endblock %}
+
+{% block path %}PACK{% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="/static/css/dojo.css">
+{% endblock %}
+
+{% block extrascript %}
+  {{ javascript('masonry.pkgd') }}
+  <script>
+$(document).ready(function() {
+  $('.year').each(function(i, year) {
+    var item = $(year)
+      , text = item.attr('title')
+      , line = $('<li class="line"/>').text(text);
+
+    if (!text) return;
+    item.removeAttr('title');
+    line.css({
+        width:      8 * 40
+      , marginLeft: 8 * 5
+    }).hide().insertAfter(item);
+    item.on('mouseover', function() {
+      line.fadeIn();
+      $('.year').not(this).animate({
+        opacity: 0.5
+      }, {
+        queue: false
+      });
+      $(this).show();
+    });
+    item.on('mouseout', function() {
+      $('.line').hide();
+      $('.year').animate({
+        opacity: 1
+      }, {
+        queue: false
+      });
+    });
+  });
+});
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="full split">
+  <div class="rest" style="margin-right: 64px">
+    <ul>
+{% for item in years %}
+      <li{% if item.history %} title="{{ item.history }}"{% endif %} class="year">
+        <a href="{{ url_for('.pack_year', year=item.year) }}">{{ item.year }}</a>
+        {{ item.line }} {{ item.packs }}
+      </li>
+{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

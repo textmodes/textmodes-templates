@@ -2,9 +2,10 @@
 
 {% macro comments_for(model, form, user) %}
     <div id="comments">
-      <h2>Comments</h2>
-  {% if user and user.is_authenticated %}
+      <h2>Shout!</h2>
+  {% if user and user.is_authenticated() %}
       <form method="post" action="{{ request.path }}#comments" id="comment-form">
+        <input type="hidden" name="action" value="comment">
         {{ form.hidden_tag() }}
         {{ form.comment }}
     {% if form.errors.comment %}
@@ -14,18 +15,22 @@
           <span style="float:right">
             <a href="{{ site_url_for('general', 'docs.file', filename='markdown') }}">Markdown</a> supported.
           </span>
-          <input type="submit" value="save">
+        </div>
+        <div>
+          <button value="save">Save</button>
         </div>
       </form>
   {% else %}
       <p>
-        <textarea readonly name="comment"></textarea>
         <a href="{{ url_for('user.login', next=request.path) }}">Log in</a> to leave a comment.
       </p>
   {% endif %}
+  {% if model.comments.count() %}
+    <h2>What others said</h2>
   {% for comment in model.comments %}
     {{ comment_tree(comment) }}
   {% endfor %}
+  {% endif %}
     </div>
 {% endmacro %}
 
@@ -34,7 +39,7 @@
         <div id="comment-{{ comment.id }}" class="comment">
           <p>
             {{ user_link(comment.user) }}
-            <span class="score">{{ comment.score }} points</span>
+            <span class="score" style="display:none">{{ comment.score }} points</span>
             <time title="{{ comment.date_created.strftime('%H:%M %Y.%m.%d') }}" datetime="{{ comment.date_created.isoformat() }}">{{ comment.date_created|duration }}</time>
             <span class="tools"></span>
           </p>

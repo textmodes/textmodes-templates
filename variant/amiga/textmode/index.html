@@ -1,4 +1,5 @@
 {% extends "textmode/base.html" %}
+{% from "textmode/_menu.html" import menu with context %}
 {% from "textmode/artist/_macro.html" import artist_link %}
 {% from "textmode/auth/_macro.html" import user_link %}
 
@@ -7,98 +8,11 @@
 {% endblock %}
 
 {% block menu %}
-      <table id="calls">
-        <thead>
-          <tr>
-            <th colspan="2">Recent calls</th>
-          </tr>
-        </thead>
-        <tbody>
-{% for call in recent.calls %}
-          <tr>
-            <td>{{ user_link(call.user) }}</td>
-            <td><time timestamp="{{ call.date_created.isoformat() }}">{{ call.date_created|duration }}</time></td>
-          </tr>
-{% endfor -%}
-        </tbody>
-      </table>
-      <br>
-      <table id="recent">
-        <thead>
-          <tr>
-            <th colspan="2">Recent collies</th>
-          </tr>
-        </thead>
-        <tbody>
-{% for colly in recent.colly %}
-          <tr>
-            <td><a href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.filename }}</a></td>
-            <td>{{ colly.date_created.strftime('%Y.%m.%d') }}</td>
-          </tr>
-{% endfor -%}
-        </tbody>
-      </table>
-      <br>
-      <table id="users">
-        <thead>
-          <tr>
-            <th colspan="2">New users</th>
-          </tr>
-        </thead>
-        <tbody>
-{% for profile in recent.users %}
-          <tr>
-            <td>{{ user_link(profile) }}</td>
-            <td><time timestamp="{{ profile.date_confirmed.isoformat() }}">{{ profile.date_confirmed.strftime('%Y.%m.%d') }}</time></td>
-          </tr>
-{% endfor -%}
-        </tbody>
-      </table>
-      <br> 
-      <form method="post" action="">
-        <input type="hidden" name="action" value="oneliner">
-        {{ form.oneliner.csrf_token }}
-        <table id="oneliners">
-          <thead>
-            <tr>
-              <th>Oneliners</th>
-            </tr>
-          </thead>
-          <tbody>
-{% for oneliner in recent.oneliners[::-1] %}
-            <tr>
-              <td>
-                <div style="float:right">{{ user_link(oneliner.user) }}</div>
-                <div title="Added {{ oneliner.date_created.strftime('%Y.%m.%d %H:%M') }}">{{ oneliner|safe }}</div>
-              </td>
-            </tr>
-{% endfor %}
-{% if user.is_authenticated() %}
-            <tr>
-              <td>
-                {{ form.oneliner.line(autocomplete='off') }}
-                <input type="submit" value="shout">
-              </td>
-            </tr>
-  {% if form.oneliner.errors.line %}
-            <tr class="error">
-              <td>{{ form.oneliner.errors.line|join('<br>')|safe }}</td>
-              <td></td>
-            </tr>
-  {% endif %}
-{% else %}
-            <tr>
-              <td><a href="{{ url_for('user.login') }}">Log in</a> to shout</td>
-              <td></td>
-            </tr>
-{% endif %}
-          </tbody>
-        </table>
-      </form>
+{{ menu(form) }}
 {% endblock %}
 
 {% block content %}
-{%- for colly in recent.colly %}
+{%- for colly in stats.recent.amiga_collies %}
     <div style="display: inline-block; width: 384px; height: 176px;margin:16px 0">
       <div style="width: 372px;overflow-x:hidden">
         <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">{{ colly.title|truncate(32, True) }}</a>
@@ -107,7 +21,9 @@
     {%- if colly.crew %} of <a href="{{ url_for('crew.info', slug=colly.crew.slug) }}" class="crew">{{ colly.crew.name }}</a>{% endif %}
   {%- endif %}
       </div>
-      <pre class="diz">{{ colly.file_id_diz|encode_html }}</pre>
+      <a href="{{ url_for('colly.show', name=colly.name) }}" class="name">
+        <pre class="diz">{{ colly.file_id_diz|center_diz|encode_html }}</pre>
+      </a>
       <div class="clear"></div>
     </div>
 {% endfor %}

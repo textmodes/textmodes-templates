@@ -1,0 +1,71 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}Crews{% endblock %}
+
+{% block content %}
+  <h1>
+    <a href="/">B:</a>\ARTISTS
+  </h1>
+
+  <p>
+    <form method="get" action="/search/">
+      <input type="hidden" name="t" value="artist">
+      <input type="text" name="q" placeholder="Search artists">
+      <input type="submit" value="search">
+    </form>
+  </p>
+
+{{ artist_pager(pager) }}
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Artist</th>
+        <th>Pieces</th>
+        <th>Votes</th>
+      </tr>
+    </thead>
+    <tbody>
+{% for artist in pager.items %}
+{% set pieces = artist.pieces.count() %}
+      <tr>
+        <td>
+          <a href="{{ url_for('.profile', slug=artist.slug) }}">{{ artist.name|title }}</a>
+          {% if artist.tag %}
+          <span class="tag">({{ artist.tag|escape }})</span>
+          {% endif %}
+        </td>
+        <td>{{ pieces or '-' }}</td>
+        <td>{{ artist.vote_count or '-' }}</td>
+      </tr>
+{% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
+
+{% macro artist_pager(pager) %}
+<div class="pager">
+{% if pager.has_prev %}
+<a href="{{ url_for('.index', page=pager.prev_num) }}">&#xae; back</a>
+{% else %}
+&#xae; back
+{% endif %}
+{% for page in pager.iter_pages() %}
+  {% if page %}
+    {% if page != pager.page %}
+    <a href="{{ url_for('.index', page=page) }}">{{ page }}</a>
+    {% else %}
+    {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if pager.has_next %}
+<a href="{{ url_for('.index', page=pager.next_num) }}">next &#xaf;</a>
+{% else %}
+next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}

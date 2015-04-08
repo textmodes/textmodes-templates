@@ -1,0 +1,53 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}{{ year }}{% endblock %}
+
+{% block content %}
+  <h1>
+    <a href="/">B:</a>{#
+    #}\<a href="/pack/">PACK</a>{#
+    #}\{{ year }}
+  </h1>
+
+  {% if pager.pages > 1 %}
+  {{ pack_pager(pager) }}
+  {% endif %}
+
+{% for pack in pager.items %}
+    <a href="{{ url_for('.pack', name=pack.name) }}">
+      <div class="piece"
+        style="background-image:url({{ cdn('pack.thumbnail', name=pack.name, variant='tile') }})">
+        <span>{{ pack.name|escape|upper }}</span>
+      </div>
+    </a>
+{% endfor %}
+
+{% endblock %}
+
+{% macro pack_pager(pager) %}
+<div class="pager">
+{% if pager.has_prev %}
+<a href="{{ url_for('pack.pack_year', year=year, page=pager.prev_num) }}"
+  id="prev">&#xae; back</a>
+{% else %}
+&#xae; back
+{% endif %}
+{% for page in pager.iter_pages() %}
+  {% if page %}
+    {% if page != pager.page %}
+    <a href="{{ url_for('pack.pack_year', year=year, page=page) }}">{{ page }}</a>
+    {% else %}
+    {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if pager.has_next %}
+<a href="{{ url_for('pack.pack_year', year=year, page=pager.next_num) }}"
+  id="next">next &#xaf;</a>
+{% else %}
+next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}

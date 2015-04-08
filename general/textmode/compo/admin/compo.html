@@ -1,0 +1,56 @@
+{% extends "textmode/admin/base.html" %}
+{% from "textmode/admin/_macros.html" import render_field, render_submit_field %}
+
+{% block content %}
+<h1>{{ compo.name }}</h1>
+
+<form method="post" action="{{ url_for('.admin_compo', compo_id=compo.id) }}" novalidate formnovalidate class="form" role="form">
+  {{ form.hidden_tag() }}
+  {{ render_field(form.name) }}
+  {{ render_field(form.website) }}
+  {{ render_submit_field(form.submit) }}
+</form>
+
+<h2>Social media (<a href="{{ url_for('.admin_compo_social_add', compo_id=compo.id) }}">add</a>)</h2>
+
+{% if compo.social %}
+<table class="full">
+  <tbody>
+  {% for social in compo.social %}
+    <tr>
+      <th>{{ social.site.title() }}</th>
+      <td><a href="{{ social.url|safe }}">{{ social.url }}</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No social profiles linked.</p>
+{% endif %}
+
+<h2>Editions (<a href="{{ url_for('.admin_compo_edition_add', compo_id=compo.id) }}">add</a>)</h2>
+
+{% if compo.editions %}
+<table class="full">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Date start</th>
+      <th>Date end</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for edition in compo.editions %}
+    <tr>
+      <td><a href="{{ url_for('.admin_compo_edition', compo_id=compo.id, edition_id=edition.id) }}">{{ edition.year }}</a></td>
+      <td>{{ edition.date_start }}</td>
+      <td>{{ edition.date_end }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No known editions.</p>
+{% endif %}
+
+{% endblock %}

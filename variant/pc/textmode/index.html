@@ -1,5 +1,5 @@
 {% extends "textmode/base.html" %}
-{% from "textmode/pack/_macros.html" import pack_thumbnail %}
+{% from "textmode/pack/_macro.html" import pack_thumbnail %}
 
 {% block extrastyle %}
   {{ stylesheet('ansi') }}
@@ -21,11 +21,11 @@
 |::.|   |::.|:. |::.. . |::.| . /::.. . |
 `---'   `---'---`-------`---'--'`-------'
 
-Most recently released artpacks
+Most recently released <a href="{{ url_for('pack.index') }}">artpacks</a>
 </pre>
   </div>
   <div class="right">
-  {% for r in recent.packs[:9] %}
+  {% for r in stats.recent.pc_packs[:9] %}
     {{ pack_show(r) }}
   {% endfor -%}
   </div>

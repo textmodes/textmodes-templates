@@ -1,0 +1,265 @@
+{# if not is_pjax() #}
+{% extends "textmode/base.html" %}
+{# endif #}
+
+{% block title %}
+{#- if not is_pjax() -#}
+{{ pack_file.filename|upper }}@{{ pack.name|upper }}
+{#- endif -#}
+{% endblock %}
+
+{% block content %}
+  <h1>
+    <a href="/">B:</a>{#
+    #}\<a href="{{ url_for('.index') }}">pack</a>{#
+    #}\<a href="/pack/{{ pack.year }}/">{{ pack.year }}</a>{#
+    #}\<a href="{{ url_for('.pack', name=pack.name) }}">{{ pack.name|upper|escape }}</a>{#
+    #}\{{ filename|upper|escape }}
+    {% if pack_file.artists -%}
+    by
+    {% for artist in pack_file.artists -%}
+    <a href="{{ url_for('artist.profile', slug=artist.slug) }}">{{ artist.name }}</a>
+    {%- if not loop.last %} &amp; {% endif -%}
+    {%- endfor %}
+    {%- endif %}
+    {% if pack.crews %}on{% endif %}
+    {%- for crew in pack.crews %}
+    {%- if crew.name == 'fake' %}
+    <strong style="color:#f55">allegedly a FAKE pack</strong>
+    {%- else -%}
+    <a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|title }}</a>
+    {%- if not loop.last %} &amp; {% endif -%}
+    {%- endif %}
+    {%- endfor %}
+  </h1>
+
+{#
+{% if user.is_authenticated() and user.has_roles(['admin', 'editor']) %}
+  <fieldset style="background-color: #000">
+    <legend>Edit tools</legend>
+    <h2>Edit artists</h2>
+    <form id="form-artists" method="post" action="">
+      <label for="edit-artists">Piece artist(s)</label>
+      <input type="hidden" name="_action" value="artist">
+      <input type="hidden" name="_csrf" value="{{ form.csrf_token() }}">
+      <input type="text" id="edit-artists" placeholder="Enter artist name">
+      <input type="submit" value="save" class="btn">
+    </form>
+    <h2>Edit font</h2>
+    <form id="form-font" method="post" action="">
+      <label for="font">Default font for displaying the piece</label>
+      <input type="hidden" name="_action" value="font">
+      <select name="font" onchange="this.form.submit()">
+      {%- for font in fonts %}
+        <option value="{{ font }}"
+          {%- if font == pack_file.font %}selected{% endif -%}
+          >
+          {%- if font -%}
+          {{ font }} ({{ fontfile[font] }})
+          {%- else -%}Piece default{% endif %}</option>
+      {% endfor -%}
+      </select>
+      <input type="submit" value="save" class="btn">
+    </form>
+  </fieldset>
+{% endif %}
+
+  <div class="navbar navbar-static" style="margin-top: 16px">
+    <div class="navbar-inner">
+      <div class="container">
+        <ul class="nav">
+{% if fontpick %}
+          <li class="dropdown">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" role="button">
+              Font <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu font">
+      {% for group, fonts in fontpick %}
+              <li class="disabled"><a href="#">{{ group }}</a></li>
+        {% for name in fonts %}
+              <li{% if name == fontname %} class="active"{% endif %}>
+              {%- if name|length > 0 -%}
+              <a href="{{ url_for('pack.pack_show_file',
+              year=pack.year,
+              name=pack.name,
+              filename=filename,
+              fontname=name) }}">
+              {%- else -%}
+              <a href="{{ url_for('pack.pack_show_file',
+              year=pack.year,
+              name=pack.name,
+              filename=filename) }}">
+              {%- endif -%}
+              {{ fontfile[name] }}</a>
+              </li>
+        {% endfor %}
+        {% if not loop.last -%}
+              <li class="divider"></li>
+        {% endif -%}
+      {% endfor %}
+            </ul>
+          </li>
+          <li class="spacing"> </li>
+{% endif %}
+          <li><a class="btn" href="http://gfx.bbs.ninja{{ url_for(
+            'pack.pack_file_download',
+            name=pack.name,
+            filename=filename) }}">Save to Disk</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+#}
+  <p>
+    <div id="display">
+{% if pack_file %}
+  {% if pack_file.file_type %}
+      <span class="file_type">{{ pack_file.file_type.name }}</span>
+  {% endif %}
+{% endif %}
+{% if lurk %}
+      <img src="{{ url_for(
+        'pack.lurk_pack_file',
+        year=pack.year,
+        name=pack.name,
+        filename=filename) }}"
+        alt="{{ pack_file.plain_text|default(filename)|escape }}"
+        title="{{ filename|upper }}"
+        id="piece"
+        >
+{% elif fontname %}
+      <img src="{{ gfx_url }}{{ url_for(
+        'pack.pack_file_view',
+        name=pack.name,
+        filename=filename,
+        font=font) }}"
+        alt="{{ pack_file.plain_text|default(filename)|escape }}"
+        title="{{ filename|upper }}"
+        id="piece">
+{% else %}
+      <img src="{{ gfx_url }}{{ url_for(
+        'pack.pack_file_view',
+        name=pack.name,
+        filename=pack_file.filename) }}?font={{ pack_file.font }}"
+        alt="{{ pack_file.plain_text|default(filename)|escape }}"
+        title="{{ filename|upper }}"
+        id="piece">
+{% endif %}
+    </div>
+  </p>
+
+{% if pack_file.sauce.record %}
+  <p>
+    <h2>SAUCE iNFO</h2>
+    <table class="full">
+      <tr>
+        <th>title</th>
+        <td>{{ pack_file.sauce.title|sauce_str }}</td>
+        <th>author</th>
+        <td>{{ pack_file.sauce.author|sauce_str }}</td>
+      </tr>
+      <tr>
+        <th>group</th>
+        <td>{{ pack_file.sauce.group|sauce_str }}</td>
+        <th>date</th>
+        <td>{{ pack_file.sauce.date|sauce_date }}</td>
+      </tr>
+      <tr>
+        <th>data type</th>
+        <td>{{ pack_file.sauce.datatype_str }}</td>
+        <th>file type</th>
+        <td>{{ pack_file.sauce.filetype_str }}</td>
+      </tr>
+      <tr>
+        <th>{{ pack_file.sauce.tinfo1_name or 'tinfo1' }}</th>
+        <td>{{ pack_file.sauce.tinfo1 }}</td>
+        <th>{{ pack_file.sauce.tinfo3_name or 'tinfo3' }}</th>
+        <td>{{ pack_file.sauce.tinfo3 }}</td>
+      </tr>
+      <tr>
+        <th>{{ pack_file.sauce.tinfo2_name or 'tinfo2' }}</th>
+        <td>{{ pack_file.sauce.tinfo2 }}</td>
+        <th>{{ pack_file.sauce.tinfo4_name or 'tinfo4' }}</th>
+        <td>{{ pack_file.sauce.tinfo4 }}</td>
+      </tr>
+    </table>
+  </p>
+{% endif %}
+
+{% if jump and (jump.prev_piece or jump.next_piece) %}
+      <div id="jump" style="width: 640px">
+        {% if jump.next_piece %}
+        <div class="bold right" style="width:176px; float: right">
+          <a href="{{ jump.next_piece|urlencode }}" id="next">
+            <h2 class="right">next &#xaf;</h2>
+            <div class="piece right"
+              style="background-image:url({{ gfx_url }}{{ pack_embed(pack, jump.next_piece) }})">
+              <span>{{ jump.next_piece|upper|escape }}</span>
+            </div>
+          </a>
+        </div>
+        {% endif %}
+        {% if jump.prev_piece %}
+        <div class="bold" style="width: 176px">
+          <a href="{{ jump.prev_piece|urlencode }}" id="prev">
+            <h2>&#xae; prev</h3>
+            <div class="piece"
+              style="background-image:url({{ gfx_url }}{{ pack_embed(pack, jump.prev_piece) }})">
+                <span>{{ jump.prev_piece|upper|escape }}</span>
+            </div>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<style type="text/css">
+.dropbox-saver,
+.dropbox-dropin-btn {
+    display: block !important;
+    background-position: -4px -4px !important;
+    background: #bbb !important;
+    color: #000 !important;
+    border: none !important;
+    border-radius: 0px !important;
+    border-width: 0px !important;
+    font: inherit !important;
+    font-size: 16px !important;
+    padding: 0 !important;
+    height: inherit !important;
+}
+.dropbox-saver:hover,
+.dropbox-dropin-btn:hover {
+    background: #000 !important;
+    color: #bbb !important;
+}
+.dropin-btn-status {
+    top: 0px !important;
+    height: 16px !important;
+    margin: 0 4px 0 0 !important;
+}
+.spacing {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+</style>
+<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="q1ja4qouqhkvihm"></script>
+{#
+{% if user.is_authenticated() and user.has_roles(['admin', 'editor']) %}
+<script>
+(function($) {
+    $(document).ready(function() {
+        $('#edit-artists').autoSuggest('/admin/suggest/artist/', {
+            minChars: 2,
+            selectedItemProp: "name",
+            searchObjProps: "name",
+            preFill: {{ artists_prefill|encode('json')|safe }}
+        });
+    });
+})(jQuery);
+</script>
+{% endif %}
+#}
+{% endblock %}

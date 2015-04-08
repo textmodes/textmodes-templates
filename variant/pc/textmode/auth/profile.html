@@ -1,23 +1,60 @@
 {% extends "textmode/base.html" %}
 {% from "textmode/artist/_macro.html" import artist_link %}
+{% from "textmode/auth/_macro.html" import user_picture %}
 {% from "textmode/crew/_macro.html" import crew_link %}
+{% from "textmode/pack/_macro.html" import pack_thumbnail %}
 
 {% block path %}USER\{{ profile.username|upper }}{% endblock %}
 
 {% block extrastyle %}
+  {{ stylesheet('croppic') }}
   {{ stylesheet('dojo') }}
+  <style type="text/css">
+    .profile-thumbnail {
+      width: 160px;
+      height: 160px;
+    }
+    #picture {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      margin-left: 152px;
+      box-shadow: 8px 8px #858585;
+    }
+  </style>
 {% endblock %}
 
 {% block extrascript %}
-  <script src="/static/js/masonry.pkgd.min.js"></script>
-  {{ javascript('jquery.hashchange') }}
+  {{ javascript('masonry.pkgd') }}
+  {{ javascript('croppic') }}
   {{ javascript('dojo.flat', 0) }}
+{% if user.is_authenticated() and user.can_manage(profile) %}
+  <script>
+$(document).ready(function() {
+  var picture = $('#picture img').attr('src');
+  var cropper = new Croppic('picture', {
+    uploadUrl:          '{{ url_for('.profile_picture_upload', username=profile.username) }}'
+  , cropUrl:            '{{ url_for('.profile_picture_crop', username=profile.username) }}'
+  , doubleZoomControls: false
+  , rotateControls:     false
+  , imgEyecandy:        true
+  , imgEyecandyOpacity: 0.2
+  , onBeforeImgUpload:  function() { $('#picture img').remove(); }
+  , onError:            function() {
+      $('#picture').append($('<img class="thumbnail"/>').attr('src', picture));
+    }
+  });
+});
+  </script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
     <div class="twocols">
       <div class="left" style="text-align:right">
-        <img src="{{ profile.thumbnail_url() }}" alt="{{ profile.username }}" style="padding-right:16px;width:160px;height:160px">
+        <div id="picture">
+          <img src="{{ user_picture(profile) }}" alt="{{ profile.username }}">
+        </div>
       </div>
       <div class="right">
         <table class="profile">
@@ -41,47 +78,19 @@
           </tbody>
         </table>
 
-        <h2>Pieces</h2>
-{% if profile.pieces.count() > 0 %}
-        <div id="progress">Loading</div>
-        <div class="dojo">
-          <ul class="pack" style="left: auto">
-  {% for piece in profile.pieces %}
-            <li class="piece tile">
-              <a href="{{ site_url_for('pc', 'pack.pack_file', name=piece.pack.name, filename=piece.filename) }}">
-                <img src="{{ site_url_for('pc', 'pack.pack_file_preview', name=piece.pack.name, filename=piece.filename) }}">
-                <label title="{{ piece.filename|upper }}"><span>{{ piece.filename|dosname(18) }}</span></label>
-              </a>
-            </li>
-  {% endfor %}
-          </ul>
-        </div>
-{% else %}
-        <blockquote>No pieces found.</blockquote>
-{% endif %}
-
-        <h2>Collies</h2>
-{% if profile.collies.count() > 0 %}
-        <p>
-          This user created {{ profile.collies.count() }} collies on
-          <a href="http://amiga.textmod.es{{ url_for('auth.profile', username=profile.username) }}">amiga.textmod.es</a>.
-        </p>
-{% else %}
-        <blockquote>No collies found.</blockquote>
-{% endif %}
-
         <h2>Public pastes</h2>
         <div class="dojo">
+          <ul class="pack" style="left:auto"></ul>
+        </div>
+        <div class="load">
           <ul class="pack" style="left:auto">
-{% for paste in profile.pastes %}
-  {% if paste.is_public %}
+{% for paste in profile.public_pastes %}
             <li class="piece tile">
               <a href="http://textmod.es/paste/{{ paste.key }}/">
                 <img src="http://textmod.es/paste/preview/{{ paste.key }}.png">
                 <label title="{{ paste.filename|upper }}"><span>{{ paste.filename|dosname(18) }}</span></label>
               </a>
             </li>
-  {% endif %}
 {% endfor %}
           </ul>
         </div>

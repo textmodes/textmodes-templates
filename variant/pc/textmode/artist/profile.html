@@ -1,38 +1,78 @@
 {% extends "textmode/base.html" %}
-{% from "textmode/artist/_macro.html" import artist_profile %}
+{% from "textmode/artist/_macro.html" import artist_profile, artist_picture with context %}
 
 {% block title %}T:\EXTMODES\PC\ARTIST\{{ artist.name|upper }}{% endblock %}
 
 {% block path %}<a href="{{ url_for('artist.index') }}">ARTIST</a>\{{ artist.name|upper }}{% endblock %}
 
 {% block extrastyle %}
-  <link rel="stylesheet" href="/static/css/ansi.css">
-  <link rel="stylesheet" href="/static/css/crew.css">
+  {{ stylesheet('ansi') }}
+  {{ stylesheet('crew') }}
+  {{ stylesheet('croppic') }}
   <style type="text/css">
     .thumbnail {
+      width: 160px;
+      height: 160px;
+    }
+    #picture {
+      position: relative;
       width: 160px;
       height: 160px;
       margin-left: 152px;
       box-shadow: 8px 8px #858585;
     }
+    #cropContainerHeader {
+      width: 160px;
+      height: 160px;
+      position: relative;
+    }
   </style>
 {% endblock %}
 
 {% block extrascript %}
-  <script src="/static/js/masonry.pkgd.min.js"></script>
+  {{ javascript('masonry.pkgd') }}
+  {{ javascript('croppic') }}
+{% if form %}
+  <script>
+$(document).ready(function() {
+  var picture = $('#picture img').attr('src');
+  var cropper = new Croppic('picture', {
+    uploadUrl:          '{{ url_for('.profile_picture_upload', slug=artist.slug) }}'
+  , cropUrl:            '{{ url_for('.profile_picture_crop', slug=artist.slug) }}'
+  , doubleZoomControls: false
+  , rotateControls:     false
+  , imgEyecandy:        true
+  , imgEyecandyOpacity: 0.2
+  , onBeforeImgUpload:  function() { $('#picture img').remove(); }
+  , onError:            function() {
+      $('#picture').append($('<img class="thumbnail"/>').attr('src', picture));
+    }
+  });
+});
+  </script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
     <div class="full">
       <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585; min-height: 160px">
-        <img src="{{ url_for('artist.thumbnail', slug=artist.slug) }}" alt="{{ artist.name }}" class="thumbnail">
+        <div id="picture">
+          <img src="{{ artist_picture(artist) }}" alt="{{ artist.name }}" class="thumbnail">
+        </div>
       </div>
       <div style="margin-left:380px; padding: 8px; min-height: 160px">
+  {% if form -%}
+        <form method="post" action="{{ url_for('.profile', slug=artist.slug) }}">
+          {{ form.hidden_tag() }}
+  {% endif -%}
         <table class="profile">
           <tbody>
-{{ artist_profile(artist, 'pc') }}
+{{ artist_profile(artist, 'pc', form) }}
           </tbody>
         </table>
+  {% if form -%}
+        </form>
+  {% endif -%}
       </div>
   {% for year in years -%}
       <div style="float:left;width:380px;margin-right:-380px;text-shadow: 8px 8px #858585">

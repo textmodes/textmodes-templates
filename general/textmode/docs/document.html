@@ -7,8 +7,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="dos">D:\{{ dospath|upper }}&gt; TYPE {{ filename|upper }}<br>
-{{ document|encode('markdown') }}<br>
-D:\{{ dospath|upper }}&gt; <span class="blink">&#xdb;</span>
-</div>
+<h1>{{ filename|upper }}</h1>
+{{ document|encode('markdown') }}
 {% endblock %}

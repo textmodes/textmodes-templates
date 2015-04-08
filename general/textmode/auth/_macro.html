@@ -1,3 +1,11 @@
+{% macro user_picture(profile) -%}
+{%- if profile.profile and profile.profile.picture_hash -%}
+{{ cdn('auth.profile_picture', username=profile.username, hash=profile.profile.picture_hash) }}
+{%- else -%}
+{{ cdn('auth.thumbnail', username=profile.username, size=160) }}
+{%- endif -%}
+{%- endmacro %}
+
 {% macro user_link(profile) -%}
 <a href="{{ profile.profile_url() }}" class="user" style="background-image:url({{ profile.thumbnail_url(size=16) }})">{{ profile.username }}</a>
 {%- endmacro %}

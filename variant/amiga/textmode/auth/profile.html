@@ -1,23 +1,59 @@
-{% extends "textmode/base.html" %}
+{% extends "textmode/base_with_menu.html" %}
 {% from "textmode/artist/_macro.html" import artist_link %}
+{% from "textmode/auth/_macro.html" import user_picture %}
 {% from "textmode/crew/_macro.html" import crew_link %}
 
 {% block path %}USER\{{ profile.username|upper }}{% endblock %}
 
 {% block extrastyle %}
+  {{ stylesheet('croppic') }}
   {{ stylesheet('dojo') }}
+  <style type="text/css">
+    .thumbnail {
+      width: 160px;
+      height: 160px;
+    }
+    #picture {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      box-shadow: 8px 8px #858585;
+    }
+  </style>
 {% endblock %}
 
 {% block extrascript %}
   {{ javascript('imagesloaded.pkgd') }}
   {{ javascript('masonry.pkgd') }}
+  {{ javascript('croppic') }}
   {{ javascript('dojo.flat', 0) }}
+{% if user.is_authenticated() and user.can_manage(profile) %}
+  <script>
+$(document).ready(function() {
+  var picture = $('#picture img').attr('src');
+  var cropper = new Croppic('picture', {
+    uploadUrl:          '{{ url_for('.profile_picture_upload', username=profile.username) }}'
+  , cropUrl:            '{{ url_for('.profile_picture_crop', username=profile.username) }}'
+  , doubleZoomControls: false
+  , rotateControls:     false
+  , imgEyecandy:        true
+  , imgEyecandyOpacity: 0.2
+  , onBeforeImgUpload:  function() { $('#picture img').remove(); }
+  , onError:            function() {
+      $('#picture').append($('<img class="thumbnail"/>').attr('src', picture));
+    }
+  });
+});
+  </script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
-    <div class="twocols">
+    <div class="twocols-small">
       <div class="left" style="text-align:right">
-        <img src="{{ profile.thumbnail_url() }}" alt="{{ profile.username }}" style="padding-right:16px;width:160px;height:160px">
+        <div id="picture">
+          <img src="{{ user_picture(profile) }}" alt="{{ profile.username }}" class="profile-thumbnail thumbnail">
+        </div>
       </div>
       <div class="right">
         <table class="profile">

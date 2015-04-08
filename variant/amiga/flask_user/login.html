@@ -1,0 +1,60 @@
+{% extends 'textmode/base_with_menu.html' %}
+
+{% block content %}
+{% from "flask_user/_macros.html" import render_field, render_checkbox_field, render_submit_field %}
+<h1>{%trans%}Sign in{%endtrans%}</h1>
+
+<form action="" method="POST" class="form" role="form">
+    {{ form.hidden_tag() }}
+
+    <table id="login">
+      <thead>
+        <tr>
+          <td style="width: 50%">
+            New here? <a href="{{ url_for('user.register') }}">Sign up</a>.
+          </td>
+          <td>
+            <a href="{{ url_for('user.forgot_password') }}">Forgot your password</a>?
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>{{ form.username.label }}</th>
+          <th>{{ form.password.label }}</th>
+        </tr>
+        <tr>
+          <td>{{ form.username }}</td>
+          <td>{{ form.password }}</td>
+        </tr>
+        <tr>
+          <td>{{ render_checkbox_field(login_form.remember_me, tabindex=130) }}</td>
+          <td>{{ render_submit_field(form.submit, tabindex=180) }}</td>
+        </tr>
+{% if form.username.errors or form.password.errors %}
+        <tr>
+  {% if form.username.errors %}
+          <td class="error">
+            {% for e in form.username.errors %}
+            <p class="help-block">{{ e }}</p>
+            {% endfor -%}
+          </td>
+  {% else %}
+          <td></td>
+  {% endif %}
+  {% if form.password.errors %}
+          <td class="error">
+            {% for e in form.password.errors %}
+            <p class="help-block">{{ e }}</p>
+            {% endfor -%}
+          </td>
+  {% else %}
+          <td></td>
+  {% endif %}
+        </tr>
+{% endif %}
+      </tbody>
+    </table>
+  </form>
+
+{% endblock %}

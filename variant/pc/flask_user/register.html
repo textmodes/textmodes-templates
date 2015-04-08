@@ -1,0 +1,42 @@
+{% extends 'flask_user/public_base.html' %}
+
+{% block content %}
+{% from "flask_user/_macros.html" import render_field, render_submit_field %}
+<pre>
+  _______             __       __              
+ |   _   .-----.-----|__|-----|  |_.-----.----.
+ |.  |   |  -__|  _  |  |__ --|   _|  -__|   _|
+ |.  _   |_____|___  |__|_____|____|_____|__|  
+ |:  |   |     |_____|                         
+ |::.|:. |                                     
+ `--- ---'                                     
+
+Register for a free account using the form below. Please use a valid email
+address so we can send you the verification link. Information you provide will
+not be shared with any third parties, spammers or other untrustworthy people,
+promised.
+
+If you already have an account, <a href="{{ url_for('user.login') }}">login here</a>.
+
+</pre>
+
+<form action="" method="POST" novalidate formnovalidate class="form" role="form">
+    {{ form.hidden_tag() }}
+
+    {# Username or Email #}
+    {{ render_field(form.username) }}
+
+    {% if user_manager.enable_email and user_manager.enable_username %}
+        {{ render_field(form.email, tabindex=220) }}
+    {% endif %}
+
+    {{ render_field(form.password, tabindex=230) }}
+
+    {% if user_manager.enable_retype_password %}
+        {{ render_field(form.retype_password, tabindex=240) }}
+    {% endif %}
+
+    {{ render_submit_field(form.submit, tabindex=280) }}
+</form>
+
+{% endblock %}

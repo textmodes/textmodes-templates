@@ -1,73 +1,46 @@
 {% extends "textmode/base.html" %}
 
+{% block extrastyle %}
+  {{ stylesheet('cropper') }}
+{% endblock %}
+
+{% block extrascript %}
+  {{ javascript('cropper') }}
+{% endblock %}
+
 {% block content %}
-    <h2>Your profile</h2>
+    <h2>{{ profile.username }}</h2>
 
-    <form method="post" action="{{ url_for('.profile') }}">
-      {{ form.profile.csrf_token }}<input type="hidden" name="action" value="profile">
-      <table class="form">
-        <tbody>
-          <tr>
-            <th>{{ form.profile.first_name.label }}</th>
-            <td>{{ form.profile.first_name(size=32) }}</td>
-          </tr>
-          {% if form.profile.errors.first_name %}
-          <tr class="error">
-            <th></th>
-            <td>{{ form.profile.errors.first_name|join('<br>')|safe }}</td>
-          </tr>
-          {% endif %}
-          <tr>
-            <th>{{ form.profile.last_name.label }}</th>
-            <td>{{ form.profile.last_name(size=32) }}</td>
-          </tr>
-          {% if form.profile.errors.last_name %}
-          <tr class="error">
-            <th></th>
-            <td>{{ form.profile.errors.last_name|join('<br>')|safe }}</td>
-          </tr>
-          {% endif %}
-          <tr>
-            <th>{{ form.profile.country.label }}</th>
-            <td>{{ form.profile.country }}</td>
-          </tr>
-          {% if form.profile.errors.country %}
-          <tr class="error">
-            <th></th>
-            <td>{{ form.profile.errors.country|join('<br>')|safe }}</td>
-          </tr>
-          {% endif %}
-          <tr>
-            <th></th>
-            <td><input type="submit" value="Update"></td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-
-    <br>
-    <h2>You as an artist</h2>
-
-    {% if user.artists|length > 0 %}
-    <p>
-      Currently claimed artist handles:
-    </p>
+    <h3><a href="{{ site_url_for('amiga', 'site.index') }}">Amiga</a> collies</a></h3>
+{% if profile.collies.count() > 0 %}
     <ul class="list">
-      {% for artist in user.artists %}
-      <li><a href="{{ url_for('.profile_artist', slug=artist.slug) }}">{{ artist.name }}</a></li>
-      {% endfor %}
+  {% for colly in profile.collies %}
+      <li><a href="{{ site_url_for('amiga', 'colly.show', name=colly.name) }}">{{ colly.filename }}</a>, {{ colly.title }} on {{ colly.date_created.strftime('%Y.%m.%d') }}</li>
+  {% endfor %}
     </ul>
-    {% endif %}
+{% else %}
+    <p>No collies found.</p>
+{% endif %}
 
-    <br>
-    <p>
-      You may apply to claim an artist handle, so that you can manage the
-      artworks linked to that artist name. In order to do so, you first make
-      a claim and then ask other members to vouch for you.
-    </p>
+    <h3><a href="{{ site_url_for('pc', 'site.index') }}">IBM PC</a> pieces</a></h3>
+{% if profile.pieces.count() > 0 %}
+    <ul class="list">
+  {% for pack_file in profile.pieces %}
+      <li><a href="{{ site_url_for('pc', 'pack.pack_file', name=pack_file.pack.name, filename=pack_file.filename) }}">{{ pack_file.filename|upper }}</a> on {{ pack_file.date_created.strftime('%Y.%m.%d') }}</li>
+  {% endfor %}
+    </ul>
+{% else %}
+    <p>No collies found.</p>
+{% endif %}
 
-    <form method="post" action="{{ url_for('.profile') }}">
-      <input type="hidden" name="action" value="claim_artist">
-    </form>
-
+    <h3>Pastes</h3>
+{% if profile.pastes %}
+    <ul class="list">
+  {% for paste in profile.pastes %}{% if paste.is_public %}
+  <li><a href="{{ url_for('paste.pasted', key=paste.key) }}">{{ paste.filename|dosname(24) }}</a> on {{ paste.date_created.strftime('%Y.%m.%d') }}</li>
+  {% endif %}{% endfor %}
+    </ul>
+{% else %}
+    <p>No pastes found.</p>
+{% endif %}
 {% endblock %}

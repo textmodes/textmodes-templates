@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="utf-8">
+  <title>BBS Ninja :: {% block title %}ANSi Art Scene{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Artpacks from the artscene over the years">
+  <meta name="author" content="Wijnand Modderman-Lenstra">
+
+  <link href="/static/bbs_ninja/bootstrap/css/bootstrap.css" rel="stylesheet">
+  <link href="/static/bbs_ninja/css/ninja.css" rel="stylesheet">
+  <link href="/static/bbs_ninja/css/autosuggest.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="row">
+        <div class="span3"></div>
+        <div class="span9">
+          <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"></button>
+            <a class="brand" href="/">BBS Ninja</a>
+            <div class="nav-collapse collapse">
+              <ul class="nav">
+                <li class="divider-vertical"></li>
+                <li class="dropdown">
+                  <a id="drop-pack" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Packs <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="drop-pack">
+{% for year in stats.pc_pack_years %}
+                    <li><a href="/pack/{{ year }}/">{{ year }}</a></li>
+{% endfor %}
+                  </ul>
+                </li>
+                <li class="divider-vertical"></li>
+                <li><a href="/artist/">Artists</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="/crew/">Crews</a></li>
+                <li class="divider-vertical"></li>
+                <li class="dropdown">
+                  <a id="drop-pack" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">About <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="drop-pack">
+                    <li><a href="/about/">General information</a></li>
+                    <li><a href="/about/privacy/">Privacy statement</a></li>
+                    <li><a href="/about/tos/">Terms of service</a></li>
+                  </ul>
+                </li>
+                <li class="divider-vertical"></li>
+                <li>
+                  <form class="navbar-search" method="get" action="/search/">
+                    <input type="text" name="q" class="search-query"
+                      placeholder="search...">
+                  </form>
+                </li>
+{% if user.is_authenticated() %}
+                <li class="divider-vertical"></li>
+                <li class="dropdown">
+                  <a id="drop-user" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }} <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="drop-pack">
+                    <li><a href="/profile/">profile</a></li>
+                    <li><a href="{{ url_for('user.logout') }}?next={{ request.path|urlencode }}">logout</a></li>
+{% if user.has_roles('admin') %}
+                    <li class="divider"></li>
+                    <li><a href="/admin/tag/artist/">tag artists</a></li>
+                    <li><a href="/admin/tag/crew/">tag crews</a></li>
+{% endif %}
+                  </ul>
+                </li>
+{% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header class="jumbotron subhead" id="overview">
+    <h1>BBS Ninja</h1>
+    <div style="height:16px"></div>
+  </header>
+
+  <div class="container">
+    <div class="left">
+{#
+      <fieldset>
+        <legend>Last callers &#x263b;</legend>
+        <table class="table-feather">
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+          <tr><td><a href="/~maze/">maze</a></td><td>13:37</td></tr>
+        </table>
+      </fieldset>
+#}
+      <fieldset>
+        <legend>Recent packs</legend>
+        <table class="table-feather table-side">
+{% for item in stats.recent.pc_packs %}
+          <tr>
+            <td><a href="{{ url_for('pack.pack', name=item.name) }}">{{ item.name|dosname(18) }}</a></td>
+            <td>{{ item.year }}</td>
+          </tr>
+{% endfor %}
+        </table>
+      </fieldset>
+
+      <fieldset>
+        <legend>Popular pieces &hearts;</legend>
+        <ul style="margin:0">
+{% for pack_file in stats.popular.pc_pack_files %}
+          <li><a href="{{ url_for('pack.pack_file', name=pack_file.pack.name, filename=pack_file.filename) }}">{{ pack_file.filename|dosname(22) }}</a></li>
+{% endfor %}
+        </ul>
+      </fieldset>
+
+      <fieldset>
+        <legend>Popular packs &hearts;</legend>
+        <ul style="margin:0">
+{% for pack in stats.popular.pc_packs %}
+          <li><a href="{{ url_for('pack.pack', name=pack.name) }}">{{ pack.name|dosname(22) }}</a></li>
+{% endfor %}
+        </ul>
+      </fieldset>
+
+      <fieldset>
+        <legend>Popular crews &hearts;</legend>
+        <ul style="margin:0">
+{% for item in crew_popular %}
+{% set crew = item[0] %}
+          <li><a href="{{ url_for_crew(crew) }}">{{ crew.name|upper }}</a></li>
+{% endfor %}
+        </ul>
+      </fieldset>
+    </div> <!-- left -->
+
+    <div class="rest" id="content">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <div class="alert fade in">
+    <button type="button" class="close" data-dismiss="alert">x</button>
+    {% for message in messages %}
+      <strong>{{ message }}</strong><br>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+{% block content %}
+{% endblock %}
+    </div> <!-- rest -->
+  </div>
+
+{% block prescript %}
+{% endblock %}
+  <script>
+  _386 = {fastLoad: true};
+  </script>
+  {#
+  <script src="/static/bbs_ninja/js/jquery.js"></script>
+  <script src="/static/bbs_ninja/js/jquery.autoSuggest.js"></script>
+  <script src="/static/bbs_ninja/js/jquery.cookie.js"></script>
+  <script src="/static/bbs_ninja/js/jquery.debounce.js"></script>
+  <script src="/static/bbs_ninja/js/jquery.mousewheel.js"></script>
+  <script src="/static/bbs_ninja/js/jquery.pjax.js"></script>
+  <script src="/static/bbs_ninja/js/bootstrap-386.js"></script>
+  <script src="/static/bbs_ninja/js/bootstrap-alert.js"></script>
+  <script src="/static/bbs_ninja/js/bootstrap-dropdown.js"></script>
+  #}
+  {% if user and user.is_authenticated() and user.has_roles('admin') %}
+  <script src="/static/bbs_ninja/js/jquery.js"></script>
+  <script src="/static/bbs_ninja/js/ninja.js"></script>
+  <script src="/static/bbs_ninja/js/bootstrap.js"></script>
+  {% else %}
+  <script src="/static/bbs_ninja/js/jquery.min.js"></script>
+  <script src="/static/bbs_ninja/js/ninja.min.js"></script>
+  <script src="/static/bbs_ninja/js/bootstrap.min.js"></script>
+  {% endif %}
+  <script>
+  (function($) {
+    $(document).ready(function() {
+      $(".alert").alert();
+    });
+  })(jQuery);
+  </script>
+{% block script %}
+{% endblock %}
+{% include "analytics.html" %}
+</body>

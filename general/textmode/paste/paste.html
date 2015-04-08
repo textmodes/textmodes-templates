@@ -22,17 +22,32 @@
     margin-top: 16px;
   }
   </style>
+  <!--Facebook OG Tags-->
+  <meta property="og:site_name" content="textmod.es"/>
+  <meta property="og:title" content="{{ paste.filename|upper }}"/>
+  <meta property="og:url" content="{{ site_url_for('general', 'paste.pasted', key=paste.key) }}"/>
+  <meta property="og:description" content="Paste of {{ paste.filename|upper }}" />
+  <meta property="og:image" content="{{ site_url_for('general', 'paste.pasted_view', key=paste.key, font=paste.font) }}"/>
 {% endblock %}
 
 {% block content %}
 <div class="wrapped">
   <form method="post" action="{{ url_for('.pasted', key=paste.key) }}">
+  <input type="hidden" name="action" value="font">
   <h1 class="form">
     <a href="{{ url_for('.index') }}">Paste</a> of
-    <a href="{{ url_for('paste.pasted_file', key=paste.key, filename=paste.filename) }}">{{ paste.filename|upper }}</a>
+    <a href="{{ url_for('paste.pasted_file', key=paste.key, filename=paste.filename) }}">{{ paste.filename|dosname(18) }}</a>
+{% if paste.user %}
+    by <a href="{{ url_for('auth.profile', username=paste.user.username) }}">{{ paste.user.username }}</a>
+{% else %}
     by {{ paste.user_created }}
+{% endif %}
     <select name="font" onchange="this.form.submit();" style="color:#ccc">
+{% if user.is_authenticated() and user.can_manage(paste) %}
+      <option value="">Change font:</option>
+{% else %}
       <option value="">Clone this paste using font:</option>
+{% endif %}
 {% for group, fontsets in fonts %}
       <optgroup label="{{ group }}">
         {% for k, v in fontsets %}<option value="{{ v }}">{{ k }}</option>{% endfor %}
@@ -41,6 +56,20 @@
     </select>
   </h1>
   </form>
+{% if user.is_authenticated() and user.can_manage(paste) %}
+  <div>
+    <form method="post" action="{{ url_for('.pasted', key=paste.key) }}" style="display:inline-block">
+      <input type="hidden" name="action" value="edit">
+      <label for="public">Public</label>
+      <input type="checkbox"{% if paste.is_public %} checked{% endif %} name="is_public" id="public">
+      <input type="submit" value="save">
+    </form>
+    <form method="post" action="{{ url_for('.pasted', key=paste.key) }}" style="display:inline-block">
+      <input type="hidden" name="action" value="delete">
+      <input type="submit" value="delete" onclick="return confirm('Are you sure you want to permanently delete this paste?');">
+    </form>
+  </div>
+{% endif %}
   <div class="share">
     <div class="medium">
       <a href="https://delicious.com/save?v=5&provider=textmod.es&noui&jump=close&url=http://textmod.es{{ url_for('paste.pasted', key=paste.key) }}" onclick="window.open('https://delicious.com/save?v=5&provider=textmod.es&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=550,height=550'); return false;">
@@ -69,7 +98,7 @@
     </div>
   </div>
   <div class="paste">
-    <img src="{{ url_for('paste.pasted_view', key=paste.key) }}" alt="{{ paste.filename|upper }}" title="{{ paste.filename|upper }}">
+    <img src="{{ url_for('paste.pasted_view', key=paste.key, font=paste.font) }}" alt="{{ paste.filename|upper }}" title="{{ paste.filename|upper }}">
   </div>
 </div>
 {% endblock %}

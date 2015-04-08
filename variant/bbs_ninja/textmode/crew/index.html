@@ -1,0 +1,51 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}Crews{% endblock %}
+
+{% block content %}
+<h1>
+    <a href="/">B:</a>\CREW
+</h1>
+
+{{ crew_pager(pager) }}
+
+{% for crew in pager.items %}
+<a href="{{ url_for('.info', slug=crew.slug) }}">
+  <div class="piece-crew"
+    style="background-image: url({{ cdn('.thumbnail', slug=crew.slug) }})">
+    <span>{{ crew.name|title }}{% if crew.tag %} ({{ crew.tag|upper }}){% endif %}</span>
+  </div>
+</a>
+{% endfor %}
+
+<div class="clearfix"> </div>
+
+{{ crew_pager(pager) }}
+
+{% endblock %}
+
+{% macro crew_pager(pager) %}
+<div class="pager">
+{% if pager.has_prev %}
+<a href="{{ url_for('.index', page=pager.prev_num) }}">&#xae; back</a>
+{% else %}
+&#xae; back
+{% endif %}
+{% for page in pager.iter_pages() %}
+  {% if page %}
+    {% if page != pager.page %}
+    <a href="{{ url_for('.index', page=page) }}">{{ page }}</a>
+    {% else %}
+    {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if pager.has_next %}
+<a href="{{ url_for('.index', page=pager.next_num) }}">next &#xaf;</a>
+{% else %}
+next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}

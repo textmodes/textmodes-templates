@@ -1,0 +1,19 @@
+{% macro rating_for(model) %}
+  {% if not model.rating %}
+{{ rating_bar(model, 0) }}
+  {% else %}
+{{ rating_bar(model, model.rating) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro rating_bar(model, rating) %}
+{% if not user.is_authenticated() %}
+<a href="{{ url_for('user.login', next=request.path) }}" title="login to vote">
+{% endif %}
+<input type="range" min="0" max="5" value="{{ '%d'|format(rating+0.5) }}" step="1" id="rate_{{ model.__tablename__ }}_{{ model.id }}" class="rating" style="display:none"
+{%- if user.is_authenticated() and model.has_rated(user) %} data-user-rating="{{ model.rating_from(user) }}"{% endif -%}
+>
+{% if not user.is_authenticated() %}
+</a>
+{% endif %}
+{% endmacro %}

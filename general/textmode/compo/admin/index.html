@@ -1,0 +1,32 @@
+{% extends "textmode/admin/base.html" %}
+{% from "textmode/admin/_macros.html" import render_field, render_submit_field %}
+
+{% block content %}
+<h1>Compo admin</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Site</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for compo in compos %}
+    <tr>
+      <td><a href="{{ url_for('.admin_compo', compo_id=compo.id) }}">{{ compo.name }}</a></td>
+      <td>{{ compo.website }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+<h2>Add a compo</h2>
+<form method="post" action="{{ url_for('.admin') }}" novalidate formnovalidate class="form" role="form">
+{{ form.hidden_tag() }}
+{{ render_field(form.name) }}
+{{ render_field(form.website) }}
+{{ render_submit_field(form.submit) }}
+</form>
+
+{% endblock %}

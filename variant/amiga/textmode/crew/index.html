@@ -1,4 +1,4 @@
-{% extends "textmode/base.html" %}
+{% extends "textmode/base_with_menu.html" %}
 {% from "textmode/_macro.html" import pagerbar %}
 
 {% block content %}
@@ -14,7 +14,7 @@
         </form>
       </div>
 {% for crew in pager.items %}
-      <a href="{{ url_for('.info', name=crew.name) }}">{{ crew.name|title }}</a>
+      <a href="{{ url_for('.info', slug=crew.slug) }}">{{ crew.name|title }}</a>
 {% endfor %}
     </div>
 {% endblock %}

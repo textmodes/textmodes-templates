@@ -50,7 +50,7 @@
               <td>
     {% for social in crew.social.order_by('site ASC') %}
                 <a href="{{ social.url }}">
-                  <img src="/static/image/icon/social/{{ social.site }}.png" alt="{{ social.site|title }}">
+                  <img src="/static/image/icon/social/pc/{{ social.site }}.png" alt="{{ social.site|title }}">
                 </a>
     {% endfor %}
               </td>

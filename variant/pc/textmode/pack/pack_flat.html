@@ -1,8 +1,9 @@
 {% extends "textmode/base.html" %}
+{% from "textmode/rate/_rating.html" import rating_for with context %}
 
-{% block title %}T:\EXTMODES\PACK\{{ pack.name|upper }}{% endblock %}
+{% block title %}{{ pack.name|upper }} &middot; PC.TEXTMOD.ES{% endblock %}
 
-{% block path %}<a href="{{ url_for('pack.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
+{% block path %}<a href="{{ url_for('.index') }}">PACK</a>\<a href="{{ url_for('.pack_year', year=pack.year) }}" id="year">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
 
 {% block extrapath %}
 {%- if pack.crews %}
@@ -12,28 +13,36 @@
   {%- endfor -%}
 {%- endif -%}
 </span>
+{{ rating_for(pack) }}
 {% endblock %}
 
 {% block extrastyle %}
-  <link rel="stylesheet" href="/static/css/dojo.css">
-  <style type="text/css">#progress{margin-top:16px}</style>
+  {{ stylesheet('ansi') }}
+  {{ stylesheet('dojo') }}
+  <style type="text/css">
+  #progress{margin-top:16px}
+  #load{display:none}
+  </style>
 {% endblock %}
 
 {% block extrascript %}
-  <script src="/static/js/masonry.pkgd.min.js"></script>
-  {{ javascript('jquery.hashchange') }}
+  {{ javascript('masonry.pkgd') }}
   {{ javascript('dojo.flat', 0) }}
+  {{ javascript('rate') }}
 {% endblock %}
 
 {% block content %}
-<div id="progress">Loading</div>
-<div id="dojo">
+<div class="dojo">
   <ul class="pack" style="left: auto">
 {% if info %}
   <div class="fileid">
     <img src="{{ cdn('.thumbnail', name=pack.name) }}">
   </div>
 {% endif %}
+  </ul>
+</div>
+<div class="load">
+  <ul class="pack" style="left: auto">
 {% for file in pack.files %}
   {%- set highlight=[] -%}
   {%- set faint=[] -%}
@@ -47,7 +56,7 @@
     {%- endfor -%}
   {%- endif -%}
     <li class="piece tile{% if highlight %} highlight{% endif %}{% if faint %} faint{% endif %}">
-      <a href="{{ url_for('.pack_file', name=pack.name, filename=file.filename) }}" rel="pack" data-preload="{{ cdn('.pack_file_view', name=pack.name, filename=file.filename, font=file.font) }}{% if file.font %}?{{ file.font }}{% endif %}">
+      <a href="{{ url_for('.pack_file', name=pack.name, filename=file.filename) }}" rel="pack" data-preload="{{ cdn('.pack_file_view', name=pack.name, filename=file.filename, font=file.font) }}">
         <img src="{{ cdn('.pack_file_preview', name=pack.name, filename=file.filename, font=file.font) }}">
         <label title="{{ file.filename|upper }}"><span>{{ file.filename|dosname(18) }}</span></label>
       </a>

@@ -1,0 +1,53 @@
+{% extends "textmode/base.html" %}
+
+{% block content %}
+<div style="max-width:740px">
+
+  <h1>
+    <a href="/">B:</a>\&gt; TYPE WELCOME.ANS
+  </h1>
+
+<div style="text-align:center; margin-bottom:32px">
+  <img src="/static/image/zo-banner.png" alt="BBS Ninja">
+</div>
+
+<h2>All your ANSi are belong to us</h2>
+
+<p>
+  Well, not really, but we love collecting artpacks and serving them to you.
+  The site is still work-in-progress, most of the work will be in tagging most
+  of the pieces.
+</p>
+<p>
+  At some point in time, we want YOU to run the site. That is, we'll enable
+  registered users to tag artists and crews in pieces, as well as upload their
+  packs to the site.
+</p>
+<p>
+~maze
+</p>
+
+<h2>Tell us what you think!</h2>
+
+<p>
+  You may have seen the heart shape
+  <span class="vote beat" style="cursor:default">&hearts;</span> icon
+  on the site, if you particularly like a piece, crew or pack, please let us
+  know by clicking on the heart shape icon. It will turn to
+  <span class="voted beat" style="cursor:default">&hearts;</span> pink if you
+  vote has been saved.
+</p>
+
+<h2>Random pieces</h2>
+
+{% for pack_file in stats.random_pc_pack_files %}
+    <a href="{{ url_for('pack.pack_file', name=pack_file.pack.name, filename=pack_file.filename) }}">
+      <div class="piece"
+        style="background-image:url({{ cdn('pack.pack_file_preview', name=pack_file.pack.name, filename=pack_file.filename) }})">
+        <span>{{ pack_file.filename|dosname }}</span>
+      </div>
+    </a>
+{% endfor %}
+
+</div>
+{% endblock %}

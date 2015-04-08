@@ -1,0 +1,254 @@
+{% extends "textmode/base.html" %}
+
+{% block title %}{{ pack.name|upper }}{% endblock %}
+
+{% block content %}
+  <h1>
+    <a href="/">B:</a>{#
+    #}\{#
+    #}<a href="/pack/">pack</a>{#
+    #}\<a href="/pack/{{ pack.year }}/">{{ pack.year }}</a>{#
+    #}\<a href="{{ url_for('.pack', name=pack.name) }}">{{ pack.name|upper|escape }}</a>
+    {%- if pack.crews %}
+    by
+    {% if artist -%}
+    <a href="{{ url_for('artist.profile', slug=artist.slug) }}">{{ artist.name|upper }}</a>
+    on
+    {% endif -%}
+    {% for crew in pack.crews %}
+    {%- if crew.name == 'fake' %}
+    <strong style="color:#f55">allegedly a FAKE crew</strong>
+    {%- else -%}
+    <a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name }}</a>
+      {%- if not loop.last %} &amp; {% endif -%}
+    {%- endif %}
+    {% endfor %}{% endif -%}
+  </h1>
+
+{% if untagged %}
+  <ul>
+  {% for file in files.order_by('filename') %}
+    <li><a href="{{ file.filename|urlencode }}">{{ file.filename|upper|escape }}</a></li>
+ {% endfor %}
+ </ul>
+{% else %}
+  <div id="pieces" style="min-width:760px">
+    <div class="packinfo"
+         style="background-image:url({{ cdn('.thumbnail', name=pack.name) }})">
+      <a href="{{ url_for('.pack_download', name=pack.name, archive_type=pack.archive_type) }}">Download pack</a>
+    </div>
+{% for file in pack.files %}
+    <a href="{{ url_for('.pack_file', name=pack.name, filename=file.filename) }}">
+      <div class="piece"
+           style="background-image:url({{ cdn('.pack_file_preview', name=pack.name, filename=file.filename) }})">
+        <span>{{ file.filename|upper|escape }}</span>
+      </div>
+    </a>
+    {% if loop.index == 9 %}
+    {% set pack_meta_shown = 1 %}
+    {{ show_pack_meta(pack) }}
+    {% endif %}
+{% endfor %}
+    {% if pack.files|length < 9 %}
+    {{ show_pack_meta(pack) }}
+    {% endif %}
+  </div>
+{% endif %}
+
+{% endblock %}
+
+{% block script %}
+<script>
+(function($) {
+  $(document).ready(function() {
+    var Display = function(year, pack, file, animate) {
+      this.init(year, pack, file, animate);
+    };
+    Display.prototype.init = function(year, pack, file, animate) {
+      console.log('new display for', year, pack, file);
+      this.year = year;
+      this.pack = pack;
+      this.file = file;
+      this.animate = animate;
+      this.direction = 1;
+      this.show = $('<div id="piece-display" style="background-repeat:no-repeat"></div>');
+      this.show.on('mouseover', $.proxy(this.scroll, this));
+      this.show.on('mouseout', this.scrollStop);
+      this.show.on('mousewheel', $.proxy(this.scrollWheel, this));
+      $("#pieces").before(this.show);
+      document.location.hash = this.file;
+      $(window).on('resize.piece', $.proxy(this.resize, this));
+      $(window).trigger('resize');
+    };
+    Display.prototype.resize = function(animate) {
+      var width = $('body').width();
+
+      // Resize content div, left side is 270px + 4px margins
+      width -= 288;
+      $('.rest').width(width);
+
+      // Resize pieces selector, piece display is 666px
+      width -= 666;
+      $('#pieces').css({
+        width: Math.max(384, width),
+        overflowY: 'auto'
+      });
+
+      var src = 'http://gfx.bbs.ninja/pack/show/' + this.year + '/'
+        + this.pack + '/' + this.file + '.png';
+      var img = $('<img/>');
+
+      // Preload image
+      img.attr('src', src);
+      img.hide();
+      img.on('load.piece', $.proxy(function(e) {
+        this.height = $(e.target).height();
+        console.log('loaded', e.target, this.height);
+      }, this));
+      $('body').append(img);
+
+      this.show.css({
+        backgroundImage: 'url(http://gfx.bbs.ninja/pack/show/' + this.year +
+          '/' + this.pack + '/' + this.file + '.png)'
+      });
+    };
+    Display.prototype.remove = function() {
+      this.show.remove();
+    };
+    Display.prototype.scroll = function() {
+     this.direction *= -1;
+      var dir = this.direction;
+      var pos = parseInt(
+        this.show.css('background-position').match(/([\d\.]+)(?:px|%)$/)
+      );
+      var dif = this.height - this.show.height();
+      console.log('animate', dir, pos, dif);
+      this.show.animate({
+         'background-position-y': '-' + (dir < 0 ? dif : 0) + 'px'
+        }, {
+          easing: 'linear',
+          duration: (dir < 0 ? dif - pos : pos) * 5,
+          complete: function() {
+            this.running = false;
+          }
+        }
+      );
+    };
+    Display.prototype.scrollStop = function() {
+        $(this).stop();
+    };
+    Display.prototype.scrollWheel = function(e) {
+      e.preventDefault();
+      console.log('delta', e.originalEvent.wheelDelta, e);
+      this.direction = (e.originalEvent.wheelDelta / 120 > 0) ? -1 : 1;
+      this.show.stop();
+      this.scroll();
+    };
+
+    var piece = $('.piece'),
+        pieces = $('#pieces'),
+        display = null,
+        files = piece.map(function() {
+        });
+
+    var show = function(file) {
+      pieces.animate({
+          width: 368
+        },
+        250,
+        'swing',
+        function() {
+          var showing = !!display;
+          if (showing) display.remove();
+          var part = location.pathname.split(/\//);
+          display = new Display(part[2], part[3], file, !showing);
+        }
+      );
+    };
+
+    if (0) {
+    piece.on('click.piece', function(e) {
+      e.preventDefault();
+      show($($(this).parent()).attr('href'));
+    });
+
+    if (location.hash.length > 1) {
+      show(location.hash.replace(/^#/, ''));
+    }
+    }
+  });
+})(jQuery);
+</script>
+{% endblock %}
+
+{% macro file_pager(pager) %}
+<div class="pager">
+{% if pager.has_prev %}
+<a href="{{ url_for('pack.pack_show', year=year, name=pack.name, page=pager.prev_num) }}"
+  id="prev">&#xae; back</a>
+{% else %}
+&#xae; back
+{% endif %}
+{% for page in pager.iter_pages() %}
+  {% if page %}
+    {% if page != pager.page %}
+    <a href="{{ url_for('pack.pack_show', year=year, name=pack.name, page=page) }}">{{ page }}</a>
+    {% else %}
+    {{ page }}
+    {% endif %}
+  {% else %}
+    ...
+  {% endif %}
+{% endfor %}
+{% if pager.has_next %}
+<a href="{{ url_for('pack.pack_show', year=year, name=pack.name, page=pager.next_num) }}"
+  id="next">next &#xaf;</a>
+{% else %}
+next &#xaf;
+{% endif %}
+</div>
+{% endmacro %}
+
+{% macro show_pack_meta(pack) %}
+    <div class="packmeta">
+      <h3>PACK &#173;NFO</h3>
+      <table class="full">
+        <tr>
+          <th>year</th>
+          <th>files</th>
+          <th colspan="2">crew(s)</th>
+        </tr>
+        <tr>
+          <td>{{ pack.year }}</th>
+          <td>{{ pack.files|length }}</td>
+          <td colspan="2">
+          {% if pack.crews %}
+            {% for crew in pack.crews %}
+            <a href="{{ url_for('crew.info', slug=crew.slug) }}">{{ crew.name|title }}</a>
+            {%- if not loop.last %},{% endif %}
+            {% endfor %}
+          {% else %}
+            N/A
+          {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th colspan="4">artists</th>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <div style="overflow:hidden; height: 80px">
+            {% if pack.artists %}
+              {% for a in pack.artists -%}
+              <a href="{{ url_for('artist.profile', slug=a.slug) }}">{{ a.name }}</a>
+              {%- if not loop.last %},{% endif %}
+              {% endfor %}
+            {% else %}
+              unknown
+            {% endif %}
+            </div>
+          </th>
+        </td>
+      </table>
+    </div>
+{% endmacro %}

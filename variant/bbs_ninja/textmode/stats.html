@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block content %}
+
+<h1>Statistics</h1>
+
+<h2>Backlog</h2>
+
+<p>A pack or file is marked done if we have a tagged crew or artist.</p>
+
+<table class="table">
+<tr>
+  <td> </td>
+  <th>Tagged</th>
+  <th>Total</th>
+  <th>Todo</th>
+  <th>% done</th>
+</tr>
+<tr>
+  <th><a href="/pack/">Packs</a></th>
+  <td>{{ pack.part }}</td>
+  <td>{{ pack.full }}</td>
+  <td>{{ pack.full - pack.part }}</td>
+  <td>{{ '%0.1f' | format(pack.percent + 0.05) }} %</td>
+</tr>
+<tr>
+  <th><a href="/pack/">Files</a></th>
+  <td>{{ pack_file.part }}</td>
+  <td>{{ pack_file.full }}</td>
+  <td>{{ pack_file.full - pack_file.part }}</td>
+  <td>{{ '%0.1f' | format(pack_file.percent + 0.05) }} %</td>
+</tr>
+</table>
+
+<h2>Grand totals</h2>
+
+<table class="table">
+<tr>
+    <th><a href="/pack/">Packs</a></th>
+    <td>{{ pack.full }}</td>
+</tr>
+<tr>
+    <th><a href="/pack/">Files</a></th>
+    <td>{{ pack_file.full }}</td>
+</tr>
+<tr>
+    <th><a href="/crew/">Crews</a></th>
+    <td>{{ crew_count }}</td>
+</tr>
+<tr>
+    <th>Artists</th>
+    <td>{{ artist_count }}</td>
+</tr>
+</table>
+
+{% endblock %}

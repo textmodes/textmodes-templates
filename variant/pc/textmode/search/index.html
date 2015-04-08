@@ -1,40 +1,83 @@
 {% extends "textmode/base.html" %}
-{% from "textmode/pack/_macros.html" import pack_thumbnail, pack_file_thumbnail %}
 
 {% block path %}SEARCH{% endblock %}
 
+{% block extrastyle %}
+  {{ stylesheet('ansi') }}
+  {{ stylesheet('dojo') }}
+  <style type="text/css">
+    #hits{display:none}
+    #progress{margin-top:16px}
+  </style>
+{% endblock %}
+
 {% block extrascript %}
-  {{ javascript('jquery.endless-scroll', 0) }}
+  {{ javascript('masonry.pkgd') }}
+  {{ javascript('jquery.endless-scroll') }}
+  {{ javascript('rate') }}
+{% if not request.is_xhr %}
   <script>
   $(document).ready(function() {
-    var note = '<div class="note"><br>v scroll down to load more v</div>'
+    $('#dojo').css('display', 'block');
+
+    var dojo = $('#dojo')
+      , pack = $('#dojo .pack')
+      , tile = new Masonry(dojo.get()[0], {
+            itemSelector: '.tile'
+          , gutter: 16
+        })
+      , load = new imagesLoaded('#hits')
+      , loading = false
+      , first = true;
+
+    function loaded(instance, image) {
+      if (image.isLoaded) {
+        console.log('loaded', image.img.src);
+        var item = $(image.img).parent().parent();
+        item.hide();
+        pack.append(item).fadeIn();
+        tile.appended(item);
+        tile.layout();
+      }
+    }
+
+    function loader() {
+      if (!loading) {
+        if (first) {
+          loadNext();
+          first = false;
+        }
+      } else {
+        loading = false;
+      }
+    }
+    
+    load.on('progress', loaded);
+    load.on('done', loader);
+    
     if (!$('.next')) return;
-    $(note).insertAfter('.next');
     $('.next').hide();
 
-    var loading = false
-      ,loadNext = function() {
-        loading = true;
-        var next = $('.next:last').attr('href');
-        $('.next').remove();
-        $('.note').remove();
-        if (!next) return; // Done Loading
+    function loadNext() {
+      if (loading) return;
+      var next = $('.next:last').attr('href');
+      $('.next').parent().remove();
+      console.log('next is', next);
+      if (typeof next === 'undefined') return;
 
-        $.ajax(next, {
-          success: function(content) {
-            $('#hits').append($(content).find('#hits a'));
-            if ($('.next')) {
-              $('.next').hide();
-              $(note).insertAfter('.next');
-            }
-            loading = false;
-          }
-        });
-      };
+      $.ajax(next, {
+        dataType: 'html',
+        success: function(content) {
+          var hits = $($(content).find('#hits'));
+          $('#hits').replaceWith(hits);
+          load = new imagesLoaded('#hits');
+          load.on('progress', loaded);
+          load.on('done', loader);
+        }
+      });
+    }
 
     $(window).scroll(function() {
-      if (loading) return;
-
       var wintop = $(window).scrollTop()
         ,docheight = $(document).height()
         ,winheight = $(window).height()
@@ -44,52 +87,13 @@
         loadNext();
       }  
     });
-
-    if ($('.next')) {
-      loadNext();
-    }
   });
   </script>
-{% endblock %}
-{% block extrastyle %}
-  <style type="text/css">
-  #hits {
-    text-align: center;
-  }
-  .score {
-    background-color: #000;
-    opacity: 0.6;
-    text-align: center;
-    margin-bottom: -16px;
-  }
-  div.thumbnail-artist span {
-    background-color: #55f;
-    color: #fff;
-  }
-  div.thumbnail-artist .score {
-    background-color: #005;
-  }
-  div.thumbnail-crew {
-    background-color: #000;
-    background-size: 160px 72px;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  div.thumbnail-crew span {
-    background-color: #f55;
-    color: #fff;
-  }
-  div.thumbnail-crew .score {
-    background-color: #500;
-  }
-  div.thumbnail-pack {
-    background-position: center;
-  }
-  </style>
+{% endif %}
 {% endblock %}
 
 {% block content %}
-    <div class="content">
+{% if not request.is_xhr %}
       <div class="wrapped">
         <form method="get" action="{{ url_for('.search') }}">
           Find
@@ -105,6 +109,7 @@
           <input type="submit" value="Search">
         </form>
       </div>
+{% endif %}
 {% if q %}
   {%- set years = result.aggs['year'] -%}
   {%- set crews = result.aggs['crew'] -%}
@@ -129,55 +134,45 @@
       </div>
       <hr>
 
-      <div id="hits">
-        {% for item in result.items %}
+    <div id="dojo">
+      <ul class="pack" style="left: auto"></ul>
+    </div>
+    <div id="hits">
+      <ul class="pack" style="left: auto">
+        {% for item in result.items -%}
+        <li class="piece tile">
           {% if item._type == 'artist' %}
-          <a href="{{ url_for('artist.profile', slug=item.slug) }}" class="hit">
-            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('artist.thumbnail', slug=item.slug) }})">
-              <span>{{ item.name|dosname(18) }}</span>
-            </div>
+          <a href="{{ url_for('artist.profile', slug=item.slug) }}" role="pack">
+            <img src="{{ cdn('artist.thumbnail', slug=item.slug) }}">
+            <label><span>{{ item.name|dosname(18) }}</span></label>
           </a>
           {% elif item._type == 'crew' %}
-          <a href="{{ url_for('crew.info', slug=item.slug) }}" class="hit">
-            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('crew.thumbnail', slug=item.slug) }})">
-              <span>{{ item.name|dosname(18) }}</span>
-            </div>
+          <a href="{{ url_for('crew.info', slug=item.slug) }}" role="pack">
+            <img src="{{ cdn('crew.thumbnail', slug=item.slug) }}" alt="{{ item.name }}">
+            <label><span>{{ item.name|dosname(18) }}</span></label>
           </a>
           {% elif item._type == 'pack' %}
-          <a href="{{ url_for('pack.pack', name=item.name) }}" class="hit">
-            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('pack.thumbnail', name=item.name) }})">
-              <span>
-                {{ item.name|dosname(18) }}
-                {% if item.crews_count > 0 %}
-                by {% for crew in item.crews %}
-                  {{ crew.name|title }}
-                  {% endfor %}
-                {% endif %}
-              </span>
-            </div>
+          <a href="{{ url_for('pack.pack', name=item.name) }}" role="pack">
+            <img src="{{ cdn('pack.thumbnail', name=item.name, variant='search') }}" alt="{{ item.name }}">
+            <label><span>{{ item.name|dosname(18) }}</span></label>
           </a>
           {% elif item._type == 'pack_file' %}
           {% set pack=item.pack %}
-          <a href="{{ url_for('pack.pack_file', name=pack.name, filename=item.filename) }}" class="hit">
-            <div class="thumbnail thumbnail-{{ item._type }}" style="background-image:url({{ cdn('pack.pack_file_preview', name=pack.name, filename=item.filename, variant='tile') }})">
-              <span>
-                {{ item.filename|dosname(18) }}
-                {% if item.artists_count > 0 %}
-                by {% for artist in item.artists %}
-                  {{ artist.name|title }}
-                  {% endfor %}
-                {% endif %}
-              </span>
-            </div>
+          <a href="{{ url_for('pack.pack_file', name=pack.name, filename=item.filename) }}" role="pack">
+            <img src="{{ cdn('pack.pack_file_preview', name=pack.name, filename=item.filename, font=item.font) }}" alt="{{ item.filename }}">
+            <label><span>{{ item.filename|dosname(18) }}</span></label>
           </a>
           {% else %}
             {{ item._type }}
           {% endif %}
+        </li>
         {% endfor %}
         {% if result.has_next %}
-        <a class="next" href="{{ url_for('.search', page=result.next_page) }}?q={{ q }}&t={{ t }}&y={{ year }}">next page</a>
+        <li>
+          <a class="next" href="{{ url_for('.search', page=result.next_page) }}?q={{ q }}&t={{ t }}&y={{ year }}">next page</a>
+        </li>
         {% endif %}
-      </div>
+      </ul>
 {% endif %}
     </div>
 

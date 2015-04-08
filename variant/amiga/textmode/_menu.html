@@ -1,0 +1,102 @@
+{% from "textmode/auth/_macro.html" import user_link %}
+
+{% macro menu(oneliner_form=None) %}
+      <table id="calls">
+        <thead>
+          <tr>
+            <th colspan="2">
+              <span style="float:right">
+{% if not user.is_authenticated() %}
+                <a href="{{ url_for('user.login') }}">Log in</a>
+{% else -%}
+                <a href="{{ url_for('user.logout') }}">Log out</a>
+{% endif -%}
+              </span>
+              Recent calls
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+{% for call in stats.recent.user_calls[:10] %}
+          <tr>
+            <td>{{ user_link(call.user) }}</td>
+            <td><time timestamp="{{ call.date_created.isoformat() }}">{{ call.date_created|duration }}</time></td>
+          </tr>
+{% endfor -%}
+        </tbody>
+      </table>
+      <br>
+      <table id="recent">
+        <thead>
+          <tr>
+            <th colspan="2">Recent collies</th>
+          </tr>
+        </thead>
+        <tbody>
+{% for colly in stats.recent.amiga_collies[:10] %}
+          <tr>
+            <td><a href="{{ url_for('colly.show', name=colly.name) }}">{{ colly.filename }}</a></td>
+            <td>{{ colly.date_created.strftime('%Y.%m.%d') }}</td>
+          </tr>
+{% endfor -%}
+        </tbody>
+      </table>
+      <br>
+      <table id="users">
+        <thead>
+          <tr>
+            <th colspan="2">New users</th>
+          </tr>
+        </thead>
+        <tbody>
+{% for profile in stats.recent.users[:5] %}
+          <tr>
+            <td>{{ user_link(profile) }}</td>
+            <td><time timestamp="{{ profile.date_confirmed.isoformat() }}">{{ profile.date_confirmed.strftime('%Y.%m.%d') }}</time></td>
+          </tr>
+{% endfor -%}
+        </tbody>
+      </table>
+{% if oneliner_form %}
+  {% set form=oneliner_form %}
+      <br> 
+      <form method="post" action="">
+        <input type="hidden" name="action" value="oneliner">
+        {{ form.oneliner.csrf_token }}
+        <table id="oneliners">
+          <thead>
+            <tr>
+              <th>Oneliners</th>
+            </tr>
+          </thead>
+          <tbody>
+  {% for oneliner in stats.recent.amiga_oneliners[::-1] %}
+            <tr>
+              <td>
+                <div style="float:right">{{ user_link(oneliner.user) }}</div>
+                <div title="Added {{ oneliner.date_created.strftime('%Y.%m.%d %H:%M') }}">{{ oneliner|safe }}</div>
+              </td>
+            </tr>
+  {% endfor -%}
+  {% if user.is_authenticated() %}
+            <tr>
+              <td>
+                {{ form.oneliner.line(autocomplete='off') }}
+                <input type="submit" value="shout">
+              </td>
+            </tr>
+    {% if form.oneliner.errors.line %}
+            <tr class="error">
+              <td>{{ form.oneliner.errors.line|join('<br>')|safe }}</td>
+            </tr>
+    {% endif -%}
+  {% else %}
+            <tr>
+              <td><a href="{{ url_for('user.login') }}">Log in</a> to shout</td>
+            </tr>
+  {% endif -%}
+          </tbody>
+        </table>
+      </form>
+{% endif -%}
+{% endmacro %}

@@ -1,0 +1,22 @@
+{% extends "textmode/admin/base.html" %}
+{% from "textmode/admin/_macros.html" import render_field, render_submit_field %}
+
+{% block content %}
+{% set page=url_for('.admin_compo_edition', compo_id=compo.id, edition_id=edition.id) %}
+<h1><a href="{{ url_for('.admin_compo', compo_id=compo.id) }}">{{ compo.name }}</a> - {{ edition.date_start }} - {{ edition.date_end }}</h1>
+
+{% with form=forms.edition %}
+<form method="post" action="{{ page }}" novalidate formnovalidate class="form" role="form">
+  {{ form.hidden_tag() }}
+  {{ render_field(form.year) }}
+  {{ render_field(form.date_start) }}
+  {{ render_field(form.date_end) }}
+  {{ render_field(form.website) }}
+  {{ render_field(form.country) }}
+  {{ render_field(form.city) }}
+  {{ render_field(form.about) }}
+  {{ render_submit_field(form.submit) }}
+</form>
+{% endwith %}
+
+{% endblock %}

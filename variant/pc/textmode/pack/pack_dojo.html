@@ -1,6 +1,6 @@
 {% extends "textmode/base.html" %}
 
-{% block title %}T:\EXTMODES\PACK\{{ pack.name|upper }}{% endblock %}
+{% block title %}{{ pack.name|upper }} &middot; PC.TEXTMOD.ES{% endblock %}
 
 {% block path %}<a href="{{ url_for('pack.pack_year', year=pack.year) }}" id="year" data-year="{{ years|join(",") }}">{{ pack.year }}</a>\{{ pack.name|upper }}{% endblock %}
 
